@@ -4,6 +4,10 @@ import type { NextRequest } from 'next/server'
 export function middleware(request: NextRequest) {
   // Skip password check if SITE_PASSWORD is not set (development mode)
   const sitePassword = process.env.SITE_PASSWORD
+
+  console.log('Middleware - SITE_PASSWORD exists:', !!sitePassword)
+  console.log('Middleware - SITE_PASSWORD length:', sitePassword?.length)
+
   if (!sitePassword) {
     return NextResponse.next()
   }
@@ -15,6 +19,10 @@ export function middleware(request: NextRequest) {
 
   // Check for authentication cookie
   const authCookie = request.cookies.get('site_auth')
+
+  console.log('Middleware - Cookie exists:', !!authCookie)
+  console.log('Middleware - Cookie value length:', authCookie?.value?.length)
+  console.log('Middleware - Cookie matches:', authCookie?.value === sitePassword)
 
   if (!authCookie || authCookie.value !== sitePassword) {
     // Redirect to login page

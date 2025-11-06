@@ -5,8 +5,14 @@ export async function POST(request: NextRequest) {
     const { password } = await request.json()
     const sitePassword = process.env.SITE_PASSWORD
 
+    // Debug logging
+    console.log('Received password length:', password?.length)
+    console.log('Expected password length:', sitePassword?.length)
+    console.log('Passwords match:', password === sitePassword)
+
     // If no password is set, allow access (development mode)
     if (!sitePassword) {
+      console.log('No SITE_PASSWORD set, allowing access')
       return NextResponse.json({ success: true })
     }
 
