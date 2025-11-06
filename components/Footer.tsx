@@ -20,6 +20,9 @@ export default function Footer() {
           <Link href="/donate" className="text-sm text-foreground/60 hover:text-primary transition-colors">
             Donate
           </Link>
+          <Link href="/privacy" className="text-sm text-foreground/60 hover:text-primary transition-colors">
+            Privacy
+          </Link>
           <a
             href="https://www.youtube.com/@PoliGrade"
             target="_blank"
