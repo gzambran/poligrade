@@ -14,9 +14,9 @@ interface Politician {
 const GRADE_OPTIONS = ['Progressive', 'Liberal', 'Centrist', 'Moderate', 'Conservative', 'Nationalist']
 const OFFICE_OPTIONS = ['All', 'Governor', 'Senator', 'House Representative']
 
-// This function will be easy to replace with an API call later
+// Fetch politicians from database via API
 async function fetchPoliticians(): Promise<Politician[]> {
-  const response = await fetch('/politicians.json')
+  const response = await fetch('/api/politicians')
   return response.json()
 }
 

@@ -1,15 +1,30 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
+import { getToken } from 'next-auth/jwt'
 
-export function middleware(request: NextRequest) {
-  // Skip password check if SITE_PASSWORD is not set (development mode)
+export async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl
+
+  // Admin routes - check NextAuth session
+  if (pathname.startsWith('/admin/politicians') || pathname.startsWith('/api/admin')) {
+    const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET })
+
+    if (!token) {
+      const loginUrl = new URL('/admin', request.url)
+      return NextResponse.redirect(loginUrl)
+    }
+
+    return NextResponse.next()
+  }
+
+  // Site password protection (for public pages)
   const sitePassword = process.env.SITE_PASSWORD
   if (!sitePassword) {
     return NextResponse.next()
   }
 
   // Allow access to the login page and API routes
-  if (request.nextUrl.pathname === '/auth/login' || request.nextUrl.pathname.startsWith('/api/')) {
+  if (pathname === '/auth/login' || pathname.startsWith('/api/')) {
     return NextResponse.next()
   }
 
@@ -19,7 +34,7 @@ export function middleware(request: NextRequest) {
   if (!authCookie || authCookie.value !== sitePassword) {
     // Redirect to login page
     const loginUrl = new URL('/auth/login', request.url)
-    loginUrl.searchParams.set('redirect', request.nextUrl.pathname)
+    loginUrl.searchParams.set('redirect', pathname)
     return NextResponse.redirect(loginUrl)
   }
 

@@ -1,0 +1,52 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("POSTGRES_PRISMA_URL")
+  directUrl = env("POSTGRES_URL_NON_POOLING")
+}
+
+enum Office {
+  GOVERNOR
+  SENATOR
+  HOUSE_REPRESENTATIVE
+}
+
+enum Status {
+  INCUMBENT
+  CANDIDATE
+  NONE
+}
+
+enum Grade {
+  PROGRESSIVE
+  LIBERAL
+  CENTRIST
+  MODERATE
+  CONSERVATIVE
+  NATIONALIST
+}
+
+model Politician {
+  id        String   @id @default(cuid())
+  name      String
+  state     String
+  district  String?
+  office    Office
+  status    Status
+  grade     Grade
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([state])
+  @@index([office])
+  @@index([grade])
+}
