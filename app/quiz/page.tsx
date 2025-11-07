@@ -15,7 +15,6 @@ export default function QuizPage() {
   const [quizData, setQuizData] = useState<QuizQuestion[]>([])
   const [currentQuestion, setCurrentQuestion] = useState(0)
   const [totalScore, setTotalScore] = useState(0)
-  const [loading, setLoading] = useState(true)
   const [quizStarted, setQuizStarted] = useState(false)
 
   useEffect(() => {
@@ -27,8 +26,6 @@ export default function QuizPage() {
         setQuizData(data)
       } catch (error) {
         console.error('Error loading quiz data:', error)
-      } finally {
-        setLoading(false)
       }
     }
     fetchQuizData()
@@ -63,16 +60,6 @@ export default function QuizPage() {
       Nationalist: 'Isolationist Economics, Cultural Traditionalism',
     }
     return descriptions[party] || ''
-  }
-
-  if (loading) {
-    return (
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        <div className="text-center">
-          <div className="text-2xl">Loading quiz...</div>
-        </div>
-      </div>
-    )
   }
 
   // Start screen

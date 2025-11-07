@@ -23,7 +23,6 @@ async function fetchPoliticians(): Promise<Politician[]> {
 function GradesContent() {
   const searchParams = useSearchParams()
   const [politicians, setPoliticians] = useState<Politician[]>([])
-  const [loading, setLoading] = useState(true)
 
   // Filter state
   const [nameQuery, setNameQuery] = useState('')
@@ -40,7 +39,6 @@ function GradesContent() {
     fetchPoliticians()
       .then(data => {
         setPoliticians(data)
-        setLoading(false)
 
         // Apply grade filter from URL if present
         const gradeParam = searchParams.get('grade')
@@ -50,7 +48,6 @@ function GradesContent() {
       })
       .catch(err => {
         console.error('Error loading politicians:', err)
-        setLoading(false)
       })
   }, [searchParams])
 
@@ -101,16 +98,6 @@ function GradesContent() {
     const endIndex = startIndex + itemsPerPage
     return filteredPoliticians.slice(startIndex, endIndex)
   }, [filteredPoliticians, currentPage, itemsPerPage])
-
-  if (loading) {
-    return (
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        <div className="text-center">
-          <div className="text-2xl">Loading politicians...</div>
-        </div>
-      </div>
-    )
-  }
 
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
