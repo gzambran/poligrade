@@ -14,18 +14,7 @@ import {
 import { US_STATES, OFFICE_OPTIONS, STATUS_OPTIONS, GRADE_OPTIONS, formatOffice, formatStatus, formatGrade } from '@/lib/constants'
 import PoliticianModal from '@/components/PoliticianModal'
 import DeleteConfirmModal from '@/components/DeleteConfirmModal'
-
-interface Politician {
-  id: string
-  name: string
-  state: string
-  district: string | null
-  office: string
-  status: string
-  grade: string
-  createdAt: string
-  updatedAt: string
-}
+import { Politician, PoliticianFormData } from '@/lib/types'
 
 export default function AdminPoliticiansPage() {
   const { data: session } = useSession()
@@ -78,7 +67,7 @@ export default function AdminPoliticiansPage() {
     setSelectedPolitician(politician)
   }
 
-  const handleSave = async (politician: Politician) => {
+  const handleSave = async (politician: PoliticianFormData) => {
     if (politician.id) {
       // Update existing
       const response = await fetch(`/api/admin/politicians/${politician.id}`, {

@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient, Office, Status, Grade } from '@prisma/client'
 import fs from 'fs'
 import path from 'path'
 
@@ -28,19 +28,19 @@ interface JSONPolitician {
   grade: string
 }
 
-function transformOffice(office: string): string {
-  if (office === 'Governor') return 'GOVERNOR'
-  if (office === 'Senator') return 'SENATOR'
-  if (office === 'House Representative') return 'HOUSE_REPRESENTATIVE'
+function transformOffice(office: string): Office {
+  if (office === 'Governor') return Office.GOVERNOR
+  if (office === 'Senator') return Office.SENATOR
+  if (office === 'House Representative') return Office.HOUSE_REPRESENTATIVE
   throw new Error(`Unknown office: ${office}`)
 }
 
-function transformGrade(grade: string): string {
+function transformGrade(grade: string): Grade {
   // Handle invalid grades (like #NUM! from spreadsheet errors)
   if (grade === '#NUM!' || !grade) {
-    return 'CENTRIST' // Default grade for invalid/missing values
+    return Grade.CENTRIST // Default grade for invalid/missing values
   }
-  return grade.toUpperCase()
+  return grade.toUpperCase() as Grade
 }
 
 function parseDistrict(districtField: string, office: string): { state: string; district: string | null } {
@@ -105,7 +105,7 @@ async function main() {
           state,
           district,
           office: transformOffice(jsonPol.office),
-          status: 'INCUMBENT', // Default to incumbent for existing politicians
+          status: Status.INCUMBENT, // Default to incumbent for existing politicians
           grade: transformGrade(jsonPol.grade),
         },
       })

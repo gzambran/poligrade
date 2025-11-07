@@ -2,10 +2,10 @@
 
 import { signIn, useSession } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useEffect } from 'react'
+import { useEffect, Suspense } from 'react'
 import { Button, Card, CardBody } from '@nextui-org/react'
 
-export default function AdminLoginPage() {
+function AdminLoginContent() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -86,5 +86,17 @@ export default function AdminLoginPage() {
         </CardBody>
       </Card>
     </div>
+  )
+}
+
+export default function AdminLoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-xl">Loading...</div>
+      </div>
+    }>
+      <AdminLoginContent />
+    </Suspense>
   )
 }

@@ -13,21 +13,12 @@ import {
   SelectItem,
 } from '@nextui-org/react'
 import { US_STATES, OFFICE_OPTIONS, STATUS_OPTIONS, GRADE_OPTIONS } from '@/lib/constants'
-
-interface Politician {
-  id?: string
-  name: string
-  state: string
-  district: string | null
-  office: string
-  status: string
-  grade: string
-}
+import { Politician, PoliticianFormData } from '@/lib/types'
 
 interface PoliticianModalProps {
   isOpen: boolean
   onClose: () => void
-  onSave: (politician: Politician) => Promise<void>
+  onSave: (politician: PoliticianFormData) => Promise<void>
   onDelete?: () => void
   politician?: Politician | null
 }
@@ -39,7 +30,7 @@ export default function PoliticianModal({
   onDelete,
   politician,
 }: PoliticianModalProps) {
-  const [formData, setFormData] = useState<Politician>({
+  const [formData, setFormData] = useState<PoliticianFormData>({
     name: '',
     state: '',
     district: null,
