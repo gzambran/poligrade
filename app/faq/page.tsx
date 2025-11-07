@@ -78,10 +78,10 @@ export default function FAQPage() {
       answer: 'Yes. Candidates and elected officials are welcome to contact us through the same Contact form as any other user. However, unlike the public, officials also have the option to participate in a recorded interview to clarify their positions or highlight areas they believe were misrepresented. This ensures fairness, accountability, and the opportunity for direct input.',
     },
     {
-      question: 'What's next for PoliGrade?',
+      question: 'What\'s next for PoliGrade?',
       answer: (
         <>
-          As we continue refining the site's core features, our next steps include adding comprehensive profiles for each graded politician and candidate—allowing users to see not only their grade but also the specific policies and votes that led to it. We're also expanding our YouTube content
+          As we continue refining the site&apos;s core features, our next steps include adding comprehensive profiles for each graded politician and candidate—allowing users to see not only their grade but also the specific policies and votes that led to it. We&apos;re also expanding our YouTube content
           <SourcePill href="https://www.youtube.com/@PoliGrade">@PoliGrade</SourcePill>
           to offer clear, accessible breakdowns of political issues and grading updates.
         </>
