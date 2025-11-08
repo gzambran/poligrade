@@ -5,14 +5,36 @@ import { useSearchParams } from 'next/navigation'
 import { Card, CardBody, Input, Select, SelectItem, Button } from '@nextui-org/react'
 
 interface Politician {
+  id: string
   name: string
+  state: string
   district: string
   office: string
+  status: string
   grade: string
 }
 
 const GRADE_OPTIONS = ['Progressive', 'Liberal', 'Centrist', 'Moderate', 'Conservative', 'Nationalist']
 const OFFICE_OPTIONS = ['All', 'Governor', 'Senator', 'House Representative']
+
+// State abbreviation to full name mapping
+const STATE_MAP: Record<string, string> = {
+  'AL': 'Alabama', 'AK': 'Alaska', 'AZ': 'Arizona', 'AR': 'Arkansas',
+  'CA': 'California', 'CO': 'Colorado', 'CT': 'Connecticut', 'DE': 'Delaware',
+  'FL': 'Florida', 'GA': 'Georgia', 'HI': 'Hawaii', 'ID': 'Idaho',
+  'IL': 'Illinois', 'IN': 'Indiana', 'IA': 'Iowa', 'KS': 'Kansas',
+  'KY': 'Kentucky', 'LA': 'Louisiana', 'ME': 'Maine', 'MD': 'Maryland',
+  'MA': 'Massachusetts', 'MI': 'Michigan', 'MN': 'Minnesota', 'MS': 'Mississippi',
+  'MO': 'Missouri', 'MT': 'Montana', 'NE': 'Nebraska', 'NV': 'Nevada',
+  'NH': 'New Hampshire', 'NJ': 'New Jersey', 'NM': 'New Mexico', 'NY': 'New York',
+  'NC': 'North Carolina', 'ND': 'North Dakota', 'OH': 'Ohio', 'OK': 'Oklahoma',
+  'OR': 'Oregon', 'PA': 'Pennsylvania', 'RI': 'Rhode Island', 'SC': 'South Carolina',
+  'SD': 'South Dakota', 'TN': 'Tennessee', 'TX': 'Texas', 'UT': 'Utah',
+  'VT': 'Vermont', 'VA': 'Virginia', 'WA': 'Washington', 'WV': 'West Virginia',
+  'WI': 'Wisconsin', 'WY': 'Wyoming'
+}
+
+const US_STATES = Object.keys(STATE_MAP).sort()
 
 // Fetch politicians from database via API
 async function fetchPoliticians(): Promise<Politician[]> {
@@ -26,9 +48,10 @@ function GradesContent() {
 
   // Filter state
   const [nameQuery, setNameQuery] = useState('')
+  const [stateFilter, setStateFilter] = useState('')
+  const [districtFilter, setDistrictFilter] = useState('')
   const [officeFilter, setOfficeFilter] = useState('All')
   const [gradeFilter, setGradeFilter] = useState('')
-  const [districtFilter, setDistrictFilter] = useState('')
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1)
@@ -55,13 +78,14 @@ function GradesContent() {
   const filteredPoliticians = useMemo(() => {
     return politicians.filter(p => {
       const matchesName = !nameQuery || p.name.toLowerCase().includes(nameQuery.toLowerCase())
+      const matchesState = !stateFilter || p.state === stateFilter
+      const matchesDistrict = !districtFilter || p.district.toLowerCase().includes(districtFilter.toLowerCase())
       const matchesOffice = officeFilter === 'All' || p.office === officeFilter
       const matchesGrade = !gradeFilter || p.grade === gradeFilter
-      const matchesDistrict = !districtFilter || p.district.toUpperCase().includes(districtFilter.toUpperCase())
 
-      return matchesName && matchesOffice && matchesGrade && matchesDistrict
+      return matchesName && matchesState && matchesDistrict && matchesOffice && matchesGrade
     })
-  }, [politicians, nameQuery, officeFilter, gradeFilter, districtFilter])
+  }, [politicians, nameQuery, stateFilter, districtFilter, officeFilter, gradeFilter])
 
   // Summary counts by grade
   const summaryCounts = useMemo(() => {
@@ -80,16 +104,17 @@ function GradesContent() {
   // Reset filters
   const handleReset = useCallback(() => {
     setNameQuery('')
+    setStateFilter('')
+    setDistrictFilter('')
     setOfficeFilter('All')
     setGradeFilter('')
-    setDistrictFilter('')
     setCurrentPage(1)
   }, [])
 
   // Reset to page 1 when filters change
   useEffect(() => {
     setCurrentPage(1)
-  }, [nameQuery, officeFilter, gradeFilter, districtFilter])
+  }, [nameQuery, stateFilter, districtFilter, officeFilter, gradeFilter])
 
   // Paginated results
   const totalPages = Math.ceil(filteredPoliticians.length / itemsPerPage)
@@ -126,7 +151,7 @@ function GradesContent() {
       {/* Search and Filters */}
       <Card className="mb-8">
         <CardBody className="p-6">
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
             <Input
               label="Search Name"
               value={nameQuery}
@@ -134,11 +159,26 @@ function GradesContent() {
               classNames={{ input: 'text-base', inputWrapper: 'h-12' }}
             />
 
+            <Select
+              label="State"
+              selectedKeys={stateFilter ? [stateFilter] : []}
+              onChange={(e) => setStateFilter(e.target.value)}
+              classNames={{ trigger: 'h-12' }}
+              placeholder="All states"
+            >
+              {US_STATES.map(state => (
+                <SelectItem key={state} value={state}>
+                  {state}
+                </SelectItem>
+              ))}
+            </Select>
+
             <Input
-              label="District/State"
+              label="District"
               value={districtFilter}
               onChange={(e) => setDistrictFilter(e.target.value)}
               classNames={{ input: 'text-base', inputWrapper: 'h-12' }}
+              placeholder="e.g., 12"
             />
 
             <Select
@@ -193,6 +233,7 @@ function GradesContent() {
               <thead className="bg-primary text-white">
                 <tr>
                   <th className="text-left p-4 font-semibold">Name</th>
+                  <th className="text-left p-4 font-semibold">State</th>
                   <th className="text-left p-4 font-semibold">District</th>
                   <th className="text-left p-4 font-semibold">Office</th>
                   <th className="text-left p-4 font-semibold">Grade</th>
@@ -201,18 +242,19 @@ function GradesContent() {
               <tbody>
                 {filteredPoliticians.length === 0 ? (
                   <tr>
-                    <td colSpan={4} className="text-center p-8 text-foreground/60">
+                    <td colSpan={5} className="text-center p-8 text-foreground/60">
                       No politicians found matching your filters
                     </td>
                   </tr>
                 ) : (
                   paginatedPoliticians.map((politician, index) => (
                     <tr
-                      key={`${politician.name}-${index}`}
+                      key={politician.id}
                       className="border-b border-divider hover:bg-default-100 transition-colors"
                     >
                       <td className="p-4">{politician.name}</td>
-                      <td className="p-4">{politician.district}</td>
+                      <td className="p-4">{STATE_MAP[politician.state] || politician.state}</td>
+                      <td className="p-4">{politician.district || '—'}</td>
                       <td className="p-4">{politician.office}</td>
                       <td className="p-4">
                         <span className="inline-block px-3 py-1 rounded-full text-sm font-semibold bg-primary/10 text-primary">
@@ -234,22 +276,26 @@ function GradesContent() {
               </div>
             ) : (
               <div className="divide-y divide-divider">
-                {paginatedPoliticians.map((politician, index) => (
+                {paginatedPoliticians.map((politician) => (
                   <div
-                    key={`${politician.name}-${index}`}
+                    key={politician.id}
                     className="p-4 hover:bg-default-100 transition-colors"
                   >
                     <div className="font-semibold text-lg mb-3">{politician.name}</div>
-                    <div className="flex justify-around items-end bg-default-50 -mx-4 px-4 py-3 rounded-lg text-sm">
-                      <div className="text-center">
-                        <span className="text-xs font-semibold text-foreground/60 block mb-1">District</span>
-                        <span className="font-medium">{politician.district}</span>
+                    <div className="grid grid-cols-2 gap-3 bg-default-50 -mx-4 px-4 py-3 rounded-lg text-sm">
+                      <div>
+                        <span className="text-xs font-semibold text-foreground/60 block mb-1">State</span>
+                        <span className="font-medium">{STATE_MAP[politician.state] || politician.state}</span>
                       </div>
-                      <div className="text-center">
+                      <div>
+                        <span className="text-xs font-semibold text-foreground/60 block mb-1">District</span>
+                        <span className="font-medium">{politician.district || '—'}</span>
+                      </div>
+                      <div>
                         <span className="text-xs font-semibold text-foreground/60 block mb-1">Office</span>
                         <span className="font-medium">{politician.office}</span>
                       </div>
-                      <div className="text-center">
+                      <div>
                         <span className="text-xs font-semibold text-foreground/60 block mb-1">Grade</span>
                         <span className="inline-block px-3 py-1 rounded-full text-sm font-semibold bg-primary/10 text-primary">
                           {politician.grade}

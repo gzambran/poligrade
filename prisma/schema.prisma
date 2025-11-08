@@ -38,7 +38,7 @@ enum Grade {
 model Politician {
   id        String   @id @default(cuid())
   name      String
-  state     String
+  state     String   @db.VarChar(2) // 2-letter state abbreviation (e.g., CA, NY, TX)
   district  String?
   office    Office
   status    Status

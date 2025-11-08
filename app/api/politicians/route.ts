@@ -1,7 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { PrismaClient } from '@prisma/client'
 
-const prisma = new PrismaClient()
+// Use singleton pattern to avoid connection issues
+const globalForPrisma = globalThis as unknown as {
+  prisma: PrismaClient | undefined
+}
+
+const prisma = globalForPrisma.prisma ?? new PrismaClient()
+
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
 
 // Public endpoint - no authentication required
 export async function GET(request: NextRequest) {
@@ -9,31 +16,33 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const grade = searchParams.get('grade')
 
-    const where: any = {}
+    // Use raw query to bypass prepared statement cache issues
+    let politicians: any[]
 
     if (grade) {
-      where.grade = grade
+      const gradeUpper = grade.toUpperCase()
+      politicians = await prisma.$queryRaw`
+        SELECT id, name, state, district, office, status, grade
+        FROM "Politician"
+        WHERE grade = ${gradeUpper}::text::"Grade"
+        ORDER BY name ASC
+      `
+    } else {
+      politicians = await prisma.$queryRaw`
+        SELECT id, name, state, district, office, status, grade
+        FROM "Politician"
+        ORDER BY name ASC
+      `
     }
 
-    const politicians = await prisma.politician.findMany({
-      where,
-      orderBy: { name: 'asc' },
-      select: {
-        id: true,
-        name: true,
-        state: true,
-        district: true,
-        office: true,
-        status: true,
-        grade: true,
-      },
-    })
-
-    // Transform to match the old JSON format for compatibility
+    // Return separate state and district fields
     const transformed = politicians.map(p => ({
+      id: p.id,
       name: p.name,
-      district: p.district ? `${p.state} - ${p.district}` : p.state,
+      state: p.state,
+      district: p.district || '',
       office: formatOffice(p.office),
+      status: formatStatus(p.status),
       grade: formatGrade(p.grade),
     }))
 
@@ -62,4 +71,8 @@ function formatOffice(office: string): string {
 
 function formatGrade(grade: string): string {
   return grade.charAt(0) + grade.slice(1).toLowerCase()
+}
+
+function formatStatus(status: string): string {
+  return status.charAt(0) + status.slice(1).toLowerCase()
 }
