@@ -179,19 +179,34 @@ export default function AdminPoliticiansPage() {
       {/* Filters */}
       <Card className="mb-6">
         <CardBody className="p-6">
-          <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-6">
+          <div className="flex items-start justify-between mb-6">
+            <h2 className="text-xl font-semibold">Filter Politicians</h2>
+            <div className="text-sm text-foreground/60">
+              {politicians.length} results
+              {totalPages > 1 && ` • Page ${currentPage} of ${totalPages}`}
+            </div>
+          </div>
+
+          {/* Search Inputs Row */}
+          <div className="grid gap-4 md:grid-cols-2 mb-4">
             <Input
-              label="Search Name"
+              placeholder="Search by name"
               value={nameFilter}
               onChange={(e) => setNameFilter(e.target.value)}
               classNames={{ input: 'text-base', inputWrapper: 'h-12' }}
+              startContent={
+                <span className="text-xs text-foreground/60 font-medium">Name</span>
+              }
             />
 
             <Select
-              label="State"
+              placeholder="Select state"
               selectedKeys={stateFilter ? [stateFilter] : []}
               onChange={(e) => setStateFilter(e.target.value)}
               classNames={{ trigger: 'h-12' }}
+              startContent={
+                <span className="text-xs text-foreground/60 font-medium mr-2">State</span>
+              }
             >
               {US_STATES.map(state => (
                 <SelectItem key={state} value={state}>
@@ -199,58 +214,72 @@ export default function AdminPoliticiansPage() {
                 </SelectItem>
               ))}
             </Select>
+          </div>
 
-            <Select
-              label="Office"
-              selectedKeys={officeFilter ? [officeFilter] : []}
-              onChange={(e) => setOfficeFilter(e.target.value)}
-              classNames={{ trigger: 'h-12' }}
-            >
-              {OFFICE_OPTIONS.map(option => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </Select>
+          {/* Filter Dropdowns Row */}
+          <div className="flex flex-wrap gap-4 items-center">
+            <div className="flex-1 min-w-[180px]">
+              <Select
+                placeholder="All offices"
+                selectedKeys={officeFilter ? [officeFilter] : []}
+                onChange={(e) => setOfficeFilter(e.target.value)}
+                classNames={{ trigger: 'h-12' }}
+                startContent={
+                  <span className="text-xs text-foreground/60 font-medium mr-2">Office</span>
+                }
+              >
+                {OFFICE_OPTIONS.map(option => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </Select>
+            </div>
 
-            <Select
-              label="Status"
-              selectedKeys={statusFilter ? [statusFilter] : []}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              classNames={{ trigger: 'h-12' }}
-            >
-              {STATUS_OPTIONS.map(option => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </Select>
+            <div className="flex-1 min-w-[180px]">
+              <Select
+                placeholder="All statuses"
+                selectedKeys={statusFilter ? [statusFilter] : []}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                classNames={{ trigger: 'h-12' }}
+                startContent={
+                  <span className="text-xs text-foreground/60 font-medium mr-2">Status</span>
+                }
+              >
+                {STATUS_OPTIONS.map(option => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </Select>
+            </div>
 
-            <Select
-              label="Grade"
-              selectedKeys={gradeFilter ? [gradeFilter] : []}
-              onChange={(e) => setGradeFilter(e.target.value)}
-              classNames={{ trigger: 'h-12' }}
-            >
-              {GRADE_OPTIONS.map(option => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </Select>
+            <div className="flex-1 min-w-[180px]">
+              <Select
+                placeholder="All grades"
+                selectedKeys={gradeFilter ? [gradeFilter] : []}
+                onChange={(e) => setGradeFilter(e.target.value)}
+                classNames={{ trigger: 'h-12' }}
+                startContent={
+                  <span className="text-xs text-foreground/60 font-medium mr-2">Grade</span>
+                }
+              >
+                {GRADE_OPTIONS.map(option => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </Select>
+            </div>
 
             <Button
               color="default"
-              variant="flat"
+              variant="light"
               onPress={handleReset}
               className="h-12"
             >
               Reset
             </Button>
-          </div>
-
-          <div className="mt-4 text-sm text-foreground/60">
-            Showing {startIndex + 1}-{Math.min(endIndex, politicians.length)} of {politicians.length} politician{politicians.length !== 1 ? 's' : ''}
           </div>
         </CardBody>
       </Card>

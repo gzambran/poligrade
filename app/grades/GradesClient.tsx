@@ -46,7 +46,6 @@ export default function GradesClient({ politicians }: GradesClientProps) {
   // Filter state
   const [nameQuery, setNameQuery] = useState('')
   const [stateFilter, setStateFilter] = useState('')
-  const [districtFilter, setDistrictFilter] = useState('')
   const [officeFilter, setOfficeFilter] = useState('All')
   const [gradeFilter, setGradeFilter] = useState('')
 
@@ -67,13 +66,12 @@ export default function GradesClient({ politicians }: GradesClientProps) {
     return politicians.filter(p => {
       const matchesName = !nameQuery || p.name.toLowerCase().includes(nameQuery.toLowerCase())
       const matchesState = !stateFilter || p.state === stateFilter
-      const matchesDistrict = !districtFilter || p.district.toLowerCase().includes(districtFilter.toLowerCase())
       const matchesOffice = officeFilter === 'All' || p.office === officeFilter
       const matchesGrade = !gradeFilter || p.grade === gradeFilter
 
-      return matchesName && matchesState && matchesDistrict && matchesOffice && matchesGrade
+      return matchesName && matchesState && matchesOffice && matchesGrade
     })
-  }, [politicians, nameQuery, stateFilter, districtFilter, officeFilter, gradeFilter])
+  }, [politicians, nameQuery, stateFilter, officeFilter, gradeFilter])
 
   // Summary counts by grade
   const summaryCounts = useMemo(() => {
@@ -93,7 +91,6 @@ export default function GradesClient({ politicians }: GradesClientProps) {
   const handleReset = useCallback(() => {
     setNameQuery('')
     setStateFilter('')
-    setDistrictFilter('')
     setOfficeFilter('All')
     setGradeFilter('')
     setCurrentPage(1)
@@ -102,7 +99,7 @@ export default function GradesClient({ politicians }: GradesClientProps) {
   // Reset to page 1 when filters change
   useEffect(() => {
     setCurrentPage(1)
-  }, [nameQuery, stateFilter, districtFilter, officeFilter, gradeFilter])
+  }, [nameQuery, stateFilter, officeFilter, gradeFilter])
 
   // Paginated results
   const totalPages = Math.ceil(filteredPoliticians.length / itemsPerPage)
@@ -118,7 +115,7 @@ export default function GradesClient({ politicians }: GradesClientProps) {
       <div className="mb-8">
         <h1 className="text-4xl font-bold mb-2">Politician Grades</h1>
         <p className="text-lg text-foreground/60">
-          Search and filter {politicians.length} elected officials by policy alignment
+          View policy-based grades for politicians across the United States
         </p>
       </div>
 
@@ -139,75 +136,89 @@ export default function GradesClient({ politicians }: GradesClientProps) {
       {/* Search and Filters */}
       <Card className="mb-8">
         <CardBody className="p-6">
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-            <Input
-              label="Search Name"
-              value={nameQuery}
-              onChange={(e) => setNameQuery(e.target.value)}
-              classNames={{ input: 'text-base', inputWrapper: 'h-12' }}
-            />
+          {/* Filters Row */}
+          <div className="flex flex-wrap gap-4 items-center">
+            <div className="flex-1 min-w-[200px]">
+              <Input
+                placeholder="Search by name"
+                value={nameQuery}
+                onChange={(e) => setNameQuery(e.target.value)}
+                classNames={{ input: 'text-base', inputWrapper: 'h-12' }}
+                startContent={
+                  <span className="text-xs text-foreground/60 font-medium">Name</span>
+                }
+              />
+            </div>
 
-            <Select
-              label="State"
-              selectedKeys={stateFilter ? [stateFilter] : []}
-              onChange={(e) => setStateFilter(e.target.value)}
-              classNames={{ trigger: 'h-12' }}
-              placeholder="All states"
-            >
-              {US_STATES.map(state => (
-                <SelectItem key={state} value={state}>
-                  {state}
-                </SelectItem>
-              ))}
-            </Select>
+            <div className="flex-1 min-w-[200px]">
+              <Select
+                placeholder="Select state"
+                selectedKeys={stateFilter ? [stateFilter] : []}
+                onChange={(e) => setStateFilter(e.target.value)}
+                classNames={{ trigger: 'h-12' }}
+                startContent={
+                  <span className="text-xs text-foreground/60 font-medium mr-2">State</span>
+                }
+              >
+                {US_STATES.map(state => (
+                  <SelectItem key={state} value={state}>
+                    {state}
+                  </SelectItem>
+                ))}
+              </Select>
+            </div>
 
-            <Input
-              label="District"
-              value={districtFilter}
-              onChange={(e) => setDistrictFilter(e.target.value)}
-              classNames={{ input: 'text-base', inputWrapper: 'h-12' }}
-              placeholder="e.g., 12"
-            />
+            <div className="flex-1 min-w-[200px]">
+              <Select
+                placeholder="All offices"
+                selectedKeys={[officeFilter]}
+                onChange={(e) => setOfficeFilter(e.target.value)}
+                classNames={{ trigger: 'h-12' }}
+                startContent={
+                  <span className="text-xs text-foreground/60 font-medium mr-2">Office</span>
+                }
+              >
+                {OFFICE_OPTIONS.map(office => (
+                  <SelectItem key={office} value={office}>
+                    {office}
+                  </SelectItem>
+                ))}
+              </Select>
+            </div>
 
-            <Select
-              label="Office"
-              selectedKeys={[officeFilter]}
-              onChange={(e) => setOfficeFilter(e.target.value)}
-              classNames={{ trigger: 'h-12' }}
-            >
-              {OFFICE_OPTIONS.map(office => (
-                <SelectItem key={office} value={office}>
-                  {office}
-                </SelectItem>
-              ))}
-            </Select>
-
-            <Select
-              label="Grade"
-              selectedKeys={gradeFilter ? [gradeFilter] : []}
-              onChange={(e) => setGradeFilter(e.target.value)}
-              classNames={{ trigger: 'h-12' }}
-            >
-              {GRADE_OPTIONS.map(grade => (
-                <SelectItem key={grade} value={grade}>
-                  {grade}
-                </SelectItem>
-              ))}
-            </Select>
+            <div className="flex-1 min-w-[200px]">
+              <Select
+                placeholder="All grades"
+                selectedKeys={gradeFilter ? [gradeFilter] : []}
+                onChange={(e) => setGradeFilter(e.target.value)}
+                classNames={{ trigger: 'h-12' }}
+                startContent={
+                  <span className="text-xs text-foreground/60 font-medium mr-2">Grade</span>
+                }
+              >
+                {GRADE_OPTIONS.map(grade => (
+                  <SelectItem key={grade} value={grade}>
+                    {grade}
+                  </SelectItem>
+                ))}
+              </Select>
+            </div>
 
             <Button
               color="default"
-              variant="flat"
+              variant="light"
               onPress={handleReset}
               className="h-12"
             >
-              Reset Filters
+              Reset
             </Button>
           </div>
 
-          <div className="mt-4 text-sm text-foreground/60">
-            Showing {filteredPoliticians.length} of {politicians.length} politicians
-            {filteredPoliticians.length > itemsPerPage && ` (page ${currentPage} of ${totalPages})`}
+          <div className="mt-4">
+            <p className="text-sm text-foreground/60">
+              {filteredPoliticians.length} of {politicians.length} results
+              {filteredPoliticians.length > itemsPerPage && ` • Page ${currentPage} of ${totalPages}`}
+            </p>
           </div>
         </CardBody>
       </Card>
