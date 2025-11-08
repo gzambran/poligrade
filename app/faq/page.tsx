@@ -9,7 +9,7 @@ function SourcePill({ href, children }: { href: string; children: React.ReactNod
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className="inline-flex items-center gap-1 px-2 py-0.5 mx-0.5 text-xs font-medium rounded-full bg-primary-100 text-primary-700 hover:bg-primary-200 dark:bg-primary-900/30 dark:text-primary-400 dark:hover:bg-primary-900/50 transition-colors no-underline"
+      className="inline-flex items-center gap-1 px-2 py-0.5 mx-0.5 text-xs font-medium rounded-full border-2 border-primary text-primary hover:bg-primary hover:text-white transition-colors no-underline"
     >
       {children}
     </a>
@@ -29,8 +29,15 @@ export default function FAQPage() {
           <p className="mb-4">
             Despite having more access to information than at any point in history, voters continue to make decisions that defy logic. Most Americans now get their political news from social media or television, both of which are deeply compromised. Social media is flooded with bots—many funded by foreign entities—whose sole purpose is to spread lies and encourage division
             <SourcePill href="https://www.csis.org/analysis/russian-bot-farm-used-ai-lie-americans-what-now">CSIS</SourcePill>
-            <SourcePill href="https://azmirror.com/2024/10/08/how-foreign-operations-are-manipulating-social-media-to-influence-your-views/">AZ Mirror</SourcePill>. Meanwhile, major news networks like CNN, CBS, and Fox are either controlled by political or corporate interests, or have lost near billion-dollar lawsuits for knowingly lying to their audiences
-            <SourcePill href="https://apnews.com/article/fox-news-dominion-lawsuit-trial-trump-2020-0ac71f75acfacc52ea80b3e747fb0afe">AP News</SourcePill>. These outlets prioritize sensationalism and outrage to keep viewers dependent, ensuring higher profits at the expense of truth.
+            <SourcePill href="https://azmirror.com/2024/10/08/how-foreign-operations-are-manipulating-social-media-to-influence-your-views/">AZ Mirror</SourcePill>. Meanwhile, major news networks like CNN, CBS, and Fox are either controlled by political or corporate interests, or have{' '}
+            <a
+              href="https://apnews.com/article/fox-news-dominion-lawsuit-trial-trump-2020-0ac71f75acfacc52ea80b3e747fb0afe"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary underline hover:text-primary-600 transition-colors"
+            >
+              lost near billion-dollar lawsuits for knowingly lying to their audiences
+            </a>. These outlets prioritize sensationalism and outrage to keep viewers dependent, ensuring higher profits at the expense of truth.
           </p>
           <p className="mb-4">
             A clear example of the damage caused by misinformation and blatant falsehoods can be seen in how Americans perceive basic demographic facts. A recent YouGov poll found that Americans believe 40% of the population is Black (actual: ~12%), 20% is transgender (actual: ~1%), one-third are first-generation immigrants (actual: ~10%), and that one in five households earn over $500,000 per year (actual: ~1%).
@@ -81,9 +88,16 @@ export default function FAQPage() {
       question: 'What\'s next for PoliGrade?',
       answer: (
         <>
-          As we continue refining the site&apos;s core features, our next steps include adding comprehensive profiles for each graded politician and candidate—allowing users to see not only their grade but also the specific policies and votes that led to it. We&apos;re also expanding our YouTube content
-          <SourcePill href="https://www.youtube.com/@PoliGrade">@PoliGrade</SourcePill>
-          to offer clear, accessible breakdowns of political issues and grading updates.
+          As we continue refining the site&apos;s core features, our next steps include adding comprehensive profiles for each graded politician and candidate—allowing users to see not only their grade but also the specific policies and votes that led to it. We&apos;re also expanding our{' '}
+          <a
+            href="https://www.youtube.com/@PoliGrade"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-primary underline hover:text-primary-600 transition-colors font-medium"
+          >
+            YouTube content
+          </a>
+          {' '}to offer clear, accessible breakdowns of political issues and grading updates.
         </>
       ),
     },
