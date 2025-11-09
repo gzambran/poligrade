@@ -1,6 +1,7 @@
 'use client'
 
 import { Accordion, AccordionItem } from '@nextui-org/react'
+import Link from 'next/link'
 
 // Source pill component similar to ChatGPT citations
 function SourcePill({ href, children }: { href: string; children: React.ReactNode }) {
@@ -70,7 +71,18 @@ export default function FAQPage() {
     },
     {
       question: 'What if I disagree with a grade?',
-      answer: 'If you disagree with a grade, visit our Contact page and let us know why. A member of our team (probably me) will respond with an explanation of how the grade was determined. If you have additional information, you may even help us make a more accurate assessment. We welcome constructive feedback—feel free to reach out about anything related to the site while you\'re there!',
+      answer: (
+        <>
+          If you disagree with a grade, visit our{' '}
+          <Link
+            href="/contact"
+            className="text-primary underline hover:text-primary-600 transition-colors font-medium"
+          >
+            Contact
+          </Link>
+          {' '}page and let us know why. A member of our team (probably me) will respond with an explanation of how the grade was determined. If you have additional information, you may even help us make a more accurate assessment. We welcome constructive feedback—feel free to reach out about anything related to the site while you&apos;re there!
+        </>
+      ),
     },
     {
       question: 'Does PoliGrade collect personal data or track users?',
@@ -82,7 +94,18 @@ export default function FAQPage() {
     },
     {
       question: 'Can candidates or officials request corrections?',
-      answer: 'Yes. Candidates and elected officials are welcome to contact us through the same Contact form as any other user. However, unlike the public, officials also have the option to participate in a recorded interview to clarify their positions or highlight areas they believe were misrepresented. This ensures fairness, accountability, and the opportunity for direct input.',
+      answer: (
+        <>
+          Yes. Candidates and elected officials are welcome to contact us through the same{' '}
+          <Link
+            href="/contact"
+            className="text-primary underline hover:text-primary-600 transition-colors font-medium"
+          >
+            Contact
+          </Link>
+          {' '}form as any other user. However, unlike the public, officials also have the option to participate in a recorded interview to clarify their positions or highlight areas they believe were misrepresented. This ensures fairness, accountability, and the opportunity for direct input.
+        </>
+      ),
     },
     {
       question: 'What\'s next for PoliGrade?',
