@@ -72,9 +72,21 @@ export default function Footer() {
 
         {/* Copyright */}
         <div className="pt-6 border-t border-divider">
-          <p className="text-center text-sm text-foreground/60">
-            &copy; {currentYear} PoliGrade. All rights reserved.
-          </p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-2 text-center text-sm text-foreground/60">
+            <p>&copy; {currentYear} PoliGrade. All rights reserved.</p>
+            <span className="hidden sm:inline">•</span>
+            <p>
+              Site by{' '}
+              <a
+                href="https://giancarlos.nyc"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary hover:underline transition-colors"
+              >
+                Giancarlos Zambrano
+              </a>
+            </p>
+          </div>
         </div>
       </div>
     </footer>
