@@ -6,33 +6,27 @@ import { Button, Card, CardBody } from '@nextui-org/react'
 const policyParties = [
   {
     name: 'Progressive',
-    policies: ['Universal Social Programs', 'Green New Deal'],
-    color: 'primary',
+    policies: ['Expansive Social Reform', 'Strong Government Control'],
   },
   {
     name: 'Liberal',
-    policies: ['Public Option Expansion', 'Democracy Protections'],
-    color: 'secondary',
+    policies: ['Regulated Markets', 'Broad Civil Rights'],
   },
   {
     name: 'Centrist',
-    policies: ['Market-Focused Social Programs', 'Bipartisan Solutions'],
-    color: 'default',
+    policies: ['Bipartisan Approach', 'Gradual Change'],
   },
   {
     name: 'Moderate',
-    policies: ['Limited Government Role', 'Minimal Social Spending'],
-    color: 'warning',
+    policies: ['Fiscal Restraint', 'Limited Government'],
   },
   {
     name: 'Conservative',
-    policies: ['Upper Bracket Tax Cuts', 'National Defense Emphasis'],
-    color: 'danger',
+    policies: ['Upper Bracket Tax Cuts', 'Traditional Values'],
   },
   {
     name: 'Nationalist',
-    policies: ['Isolationist Economics', 'Cultural Traditionalism'],
-    color: 'danger',
+    policies: ['Isolationist Focus', 'Cultural Preservation'],
   },
 ]
 
@@ -162,6 +156,10 @@ export default function Home() {
               </div>
             ))}
           </div>
+
+          <p className="mx-auto mt-12 max-w-3xl text-center text-sm text-foreground/50 italic">
+            The beliefs shown are examples of general tendencies, not requirements for any grade.
+          </p>
         </div>
       </section>
 
