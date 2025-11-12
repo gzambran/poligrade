@@ -48,7 +48,7 @@ export default function Home() {
         </div>
 
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex min-h-[calc(100vh-4rem)] flex-col items-center justify-center py-20 text-center">
+          <div className="flex min-h-[80vh] flex-col items-center justify-center py-16 text-center">
             {/* Badge */}
             <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-divider bg-content1 px-4 py-1.5 text-sm">
               <span className="relative flex h-2 w-2">
