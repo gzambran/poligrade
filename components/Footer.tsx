@@ -13,17 +13,17 @@ export default function Footer() {
             <h3 className="text-sm font-semibold text-foreground mb-3">Explore</h3>
             <ul className="space-y-2">
               <li>
-                <Link href="/quiz" className="text-sm text-foreground/60 hover:text-primary transition-colors">
+                <Link href="/quiz" className="text-sm text-foreground/80 hover:text-primary transition-colors">
                   Voter Alignment Quiz
                 </Link>
               </li>
               <li>
-                <Link href="/grades" className="text-sm text-foreground/60 hover:text-primary transition-colors">
+                <Link href="/grades" className="text-sm text-foreground/80 hover:text-primary transition-colors">
                   Politician Grades
                 </Link>
               </li>
               <li>
-                <Link href="/faq" className="text-sm text-foreground/60 hover:text-primary transition-colors">
+                <Link href="/faq" className="text-sm text-foreground/80 hover:text-primary transition-colors">
                   FAQ
                 </Link>
               </li>
@@ -35,17 +35,17 @@ export default function Footer() {
             <h3 className="text-sm font-semibold text-foreground mb-3">Support</h3>
             <ul className="space-y-2">
               <li>
-                <Link href="/contact" className="text-sm text-foreground/60 hover:text-primary transition-colors">
+                <Link href="/contact" className="text-sm text-foreground/80 hover:text-primary transition-colors">
                   Contact
                 </Link>
               </li>
               <li>
-                <Link href="/donate" className="text-sm text-foreground/60 hover:text-primary transition-colors">
+                <Link href="/donate" className="text-sm text-foreground/80 hover:text-primary transition-colors">
                   Donate
                 </Link>
               </li>
               <li>
-                <Link href="/privacy" className="text-sm text-foreground/60 hover:text-primary transition-colors">
+                <Link href="/privacy" className="text-sm text-foreground/80 hover:text-primary transition-colors">
                   Privacy Policy
                 </Link>
               </li>
@@ -59,7 +59,7 @@ export default function Footer() {
               href="https://www.youtube.com/@PoliGrade"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold border-2 border-[#FF0000] text-[#FF0000] hover:bg-[#FF0000] hover:text-white transition-colors rounded"
+              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold border-2 border-[#FF4444] text-[#FF4444] hover:bg-[#FF0000] hover:text-white transition-colors rounded"
               aria-label="Visit PoliGrade on YouTube (opens in new window)"
             >
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -72,7 +72,7 @@ export default function Footer() {
 
         {/* Copyright */}
         <div className="pt-6 border-t border-divider">
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-2 text-center text-sm text-foreground/60">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-2 text-center text-sm text-foreground/80">
             <p>&copy; {currentYear} PoliGrade. All rights reserved.</p>
             <span className="hidden sm:inline">•</span>
             <p>
