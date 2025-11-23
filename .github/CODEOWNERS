@@ -1,0 +1,5 @@
+# CODEOWNERS
+# This file defines code ownership for the repository.
+# The owner will be automatically requested for review on all pull requests.
+
+* @gzambran
