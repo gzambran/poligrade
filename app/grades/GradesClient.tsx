@@ -178,18 +178,49 @@ export default function GradesClient({ politicians }: GradesClientProps) {
         </p>
       </div>
 
-      {/* Summary Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
-        {GRADE_OPTIONS.map(grade => (
-          <Card key={grade} className="hover:shadow-lg transition-shadow">
-            <CardBody className="text-center p-4">
-              <p className="text-2xl font-bold text-primary mb-1">
-                {summaryCounts[grade]}
-              </p>
-              <p className="text-sm text-foreground/60">{grade}</p>
-            </CardBody>
-          </Card>
-        ))}
+      {/* Bar Chart */}
+      <div className="mb-8">
+        <Card className="p-6 shadow-xl bg-white">
+          <div className="flex justify-between items-end h-64 space-x-4 pt-10">
+            {GRADE_OPTIONS.map((grade) => {
+              const count = summaryCounts[grade] || 0
+
+              // Your color mapping
+              const getGradeColor = (grade: string) => {
+                switch (grade) {
+                  case 'Progressive': return { bg: '#3c78d8', text: '#3c78d8' }
+                  case 'Liberal': return { bg: '#6d9eeb', text: '#6d9eeb' }
+                  case 'Centrist': return { bg: '#a4c2f4', text: '#a4c2f4' }
+                  case 'Moderate': return { bg: '#ea9999', text: '#ea9999' }
+                  case 'Conservative': return { bg: '#e06666', text: '#e06666' }
+                  case 'Nationalist': return { bg: '#cc0000', text: '#cc0000' }     
+                  default: return { bg: '#a6a6a6', text: '#a6a6a6' }
+                }
+              }
+
+              const { bg, text } = getGradeColor(grade)
+              const maxCount = Math.max(...Object.values(summaryCounts))
+              const height = maxCount > 0 ? Math.max(5, (count / maxCount) * 100) : 5
+
+              return (
+                <div key={grade} className="flex flex-col items-center justify-end h-full w-1/6">
+                  <div className="text-xl font-bold mb-2" style={{ color: text }}>
+                    {count}
+                  </div>
+
+                  <div
+                    className="w-full rounded-t-lg shadow-md transition-all duration-700 ease-out"
+                    style={{ height: `${height}%`, backgroundColor: bg }}
+                  />
+
+                  <div className="text-sm text-center pt-2 text-foreground/80">
+                    {grade}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </Card>
       </div>
 
       {/* Search and Filters */}
