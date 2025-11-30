@@ -18,6 +18,19 @@ interface Politician {
 const GRADE_OPTIONS = ['Progressive', 'Liberal', 'Centrist', 'Moderate', 'Conservative', 'Nationalist']
 const OFFICE_OPTIONS = ['All', 'Governor', 'Senator', 'House Representative']
 
+const GRADE_COLORS: Record<string, { bg: string; text: string }> = {
+  Progressive: { bg: '#3c78d8', text: '#3c78d8' },
+  Liberal: { bg: '#6d9eeb', text: '#6d9eeb' },
+  Centrist: { bg: '#a4c2f4', text: '#a4c2f4' },
+  Moderate: { bg: '#ea9999', text: '#ea9999' },
+  Conservative: { bg: '#e06666', text: '#e06666' },
+  Nationalist: { bg: '#cc0000', text: '#cc0000' },
+  default: { bg: '#a6a6a6', text: '#a6a6a6' },
+}
+
+const getGradeColor = (grade: string) =>
+  GRADE_COLORS[grade] || GRADE_COLORS.default;
+
 interface GradesClientProps {
   politicians: Politician[]
 }
@@ -178,18 +191,43 @@ export default function GradesClient({ politicians }: GradesClientProps) {
         </p>
       </div>
 
-      {/* Summary Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
-        {GRADE_OPTIONS.map(grade => (
-          <Card key={grade} className="hover:shadow-lg transition-shadow">
-            <CardBody className="text-center p-4">
-              <p className="text-2xl font-bold text-primary mb-1">
-                {summaryCounts[grade]}
-              </p>
-              <p className="text-sm text-foreground/60">{grade}</p>
-            </CardBody>
-          </Card>
-        ))}
+      {/* Bar Chart */}
+      <div className="mb-8">
+        <Card className="p-6 shadow-xl">
+          <div className="flex justify-between items-end h-64 space-x-4 pt-10"
+          role="img"
+          aria-label={`Bar chart showing politician counts: ${GRADE_OPTIONS.map(g => `${g}: ${summaryCounts[g]}`).join(', ')}`}
+          >
+            {(() => {
+              const counts = Object.values(summaryCounts);
+              const maxCount = counts.length > 0 ? Math.max(...counts) : 1;
+
+              return GRADE_OPTIONS.map((grade) => {
+                const count = summaryCounts[grade] || 0;
+                const { bg, text } = getGradeColor(grade);
+                const height = Math.max(5, (count / maxCount) * 100);
+
+                return (
+                  <div key={grade} className="flex flex-col items-center justify-end h-full flex-1 min-w-[45px]">
+                    <div className="text-xl font-bold mb-2" style={{ color: text }}>
+                      {count}
+                    </div>
+
+                    <div
+                      className="w-full rounded-t-lg shadow-md transition-all duration-700 ease-out"
+                      style={{ height: `${height}%`, backgroundColor: bg }}
+                    />
+
+                    <div className="text-sm text-center pt-2 text-foreground/80">
+                      {grade}
+                    </div>
+                  </div>
+                );
+              });
+            })()}
+
+          </div>
+        </Card>
       </div>
 
       {/* Search and Filters */}
