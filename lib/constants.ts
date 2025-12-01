@@ -56,3 +56,16 @@ export const formatStatus = (status: string) => {
 export const formatGrade = (grade: string) => {
   return GRADE_OPTIONS.find(g => g.value === grade)?.label || grade
 }
+
+// Grade colors for consistent styling across the app
+export const GRADE_COLORS: Record<string, { bg: string; text: string }> = {
+  Progressive: { bg: '#3c78d8', text: '#3c78d8' },
+  Liberal: { bg: '#6d9eeb', text: '#6d9eeb' },
+  Centrist: { bg: '#a4c2f4', text: '#a4c2f4' },
+  Moderate: { bg: '#ea9999', text: '#ea9999' },
+  Conservative: { bg: '#e06666', text: '#e06666' },
+  Nationalist: { bg: '#cc0000', text: '#cc0000' },
+}
+
+export const getGradeColor = (grade: string) =>
+  GRADE_COLORS[grade] || { bg: '#a6a6a6', text: '#a6a6a6' }

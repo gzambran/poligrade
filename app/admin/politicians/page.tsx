@@ -11,7 +11,7 @@ import {
   CardBody,
   Spinner,
 } from '@nextui-org/react'
-import { US_STATES, STATE_MAP, OFFICE_OPTIONS, STATUS_OPTIONS, GRADE_OPTIONS, formatOffice, formatStatus, formatGrade } from '@/lib/constants'
+import { US_STATES, STATE_MAP, OFFICE_OPTIONS, STATUS_OPTIONS, GRADE_OPTIONS, formatOffice, formatStatus, formatGrade, getGradeColor } from '@/lib/constants'
 import PoliticianModal from '@/components/PoliticianModal'
 import DeleteConfirmModal from '@/components/DeleteConfirmModal'
 import { Politician, PoliticianFormData } from '@/lib/types'
@@ -334,7 +334,13 @@ export default function AdminPoliticiansPage() {
                       <td className="p-4">{formatOffice(politician.office)}</td>
                       <td className="p-4">{formatStatus(politician.status)}</td>
                       <td className="p-4">
-                        <span className="inline-block px-3 py-1 rounded-full text-sm font-semibold bg-primary/10 text-primary">
+                        <span
+                          className="inline-block px-3 py-1 rounded-full text-sm font-semibold"
+                          style={{
+                            backgroundColor: `${getGradeColor(formatGrade(politician.grade)).bg}20`,
+                            color: getGradeColor(formatGrade(politician.grade)).text
+                          }}
+                        >
                           {formatGrade(politician.grade)}
                         </span>
                       </td>

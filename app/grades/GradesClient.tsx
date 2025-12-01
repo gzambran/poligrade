@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { Card, CardBody, Input, Select, SelectItem, Button } from '@nextui-org/react'
-import { STATE_MAP, US_STATES } from '@/lib/constants'
+import { STATE_MAP, US_STATES, getGradeColor } from '@/lib/constants'
 
 interface Politician {
   id: string
@@ -17,19 +17,6 @@ interface Politician {
 
 const GRADE_OPTIONS = ['Progressive', 'Liberal', 'Centrist', 'Moderate', 'Conservative', 'Nationalist']
 const OFFICE_OPTIONS = ['All', 'Governor', 'Senator', 'House Representative']
-
-const GRADE_COLORS: Record<string, { bg: string; text: string }> = {
-  Progressive: { bg: '#3c78d8', text: '#3c78d8' },
-  Liberal: { bg: '#6d9eeb', text: '#6d9eeb' },
-  Centrist: { bg: '#a4c2f4', text: '#a4c2f4' },
-  Moderate: { bg: '#ea9999', text: '#ea9999' },
-  Conservative: { bg: '#e06666', text: '#e06666' },
-  Nationalist: { bg: '#cc0000', text: '#cc0000' },
-  default: { bg: '#a6a6a6', text: '#a6a6a6' },
-}
-
-const getGradeColor = (grade: string) =>
-  GRADE_COLORS[grade] || GRADE_COLORS.default
 
 interface GradesClientProps {
   politicians: Politician[]
@@ -456,7 +443,13 @@ export default function GradesClient({ politicians }: GradesClientProps) {
                       <td className="p-4">{politician.district || '—'}</td>
                       <td className="p-4">{politician.office}</td>
                       <td className="p-4">
-                        <span className="inline-block px-3 py-1 rounded-full text-sm font-semibold bg-primary/10 text-primary">
+                        <span
+                          className="inline-block px-3 py-1 rounded-full text-sm font-semibold"
+                          style={{
+                            backgroundColor: `${getGradeColor(politician.grade).bg}20`,
+                            color: getGradeColor(politician.grade).text
+                          }}
+                        >
                           {politician.grade}
                         </span>
                       </td>
@@ -505,7 +498,13 @@ export default function GradesClient({ politicians }: GradesClientProps) {
                       </div>
                       <div>
                         <span className="text-xs font-semibold text-foreground/60 block mb-1">Grade</span>
-                        <span className="inline-block px-3 py-1 rounded-full text-sm font-semibold bg-primary/10 text-primary">
+                        <span
+                          className="inline-block px-3 py-1 rounded-full text-sm font-semibold"
+                          style={{
+                            backgroundColor: `${getGradeColor(politician.grade).bg}20`,
+                            color: getGradeColor(politician.grade).text
+                          }}
+                        >
                           {politician.grade}
                         </span>
                       </div>
