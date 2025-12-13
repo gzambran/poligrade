@@ -69,3 +69,52 @@ export const GRADE_COLORS: Record<string, { bg: string; text: string }> = {
 
 export const getGradeColor = (grade: string) =>
   GRADE_COLORS[grade] || { bg: '#a6a6a6', text: '#a6a6a6' }
+
+// Party options
+export const PARTY_OPTIONS = [
+  { value: 'DEMOCRAT', label: 'Democrat' },
+  { value: 'REPUBLICAN', label: 'Republican' },
+  { value: 'INDEPENDENT', label: 'Independent' },
+]
+
+// Running For options (Office + "Not Running")
+export const RUNNING_FOR_OPTIONS = [
+  { value: '', label: 'Not Running' },
+  { value: 'GOVERNOR', label: 'Governor' },
+  { value: 'SENATOR', label: 'Senator' },
+  { value: 'HOUSE_REPRESENTATIVE', label: 'House Representative' },
+]
+
+// Issue criteria for profile pages
+export const ISSUE_CRITERIA = [
+  { key: 'economicPolicy', label: 'Economic Policy' },
+  { key: 'businessLabor', label: 'Business & Labor' },
+  { key: 'healthCare', label: 'Health Care' },
+  { key: 'education', label: 'Education' },
+  { key: 'environment', label: 'Environment' },
+  { key: 'civilRights', label: 'Civil Rights' },
+  { key: 'votingRights', label: 'Voting Rights' },
+  { key: 'immigrationForeignAffairs', label: 'Immigration & Foreign Affairs' },
+  { key: 'publicSafety', label: 'Public Safety' },
+] as const
+
+export const formatParty = (party: string | null) => {
+  if (!party) return null
+  return PARTY_OPTIONS.find(p => p.value === party)?.label || party
+}
+
+export const formatRunningFor = (runningFor: string | null) => {
+  if (!runningFor) return null
+  return RUNNING_FOR_OPTIONS.find(r => r.value === runningFor)?.label || runningFor
+}
+
+// Generate a URL-friendly slug from a name
+export const generateSlug = (name: string): string => {
+  return name
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, '') // Remove special characters
+    .replace(/\s+/g, '-') // Replace spaces with hyphens
+    .replace(/-+/g, '-') // Replace multiple hyphens with single
+    .replace(/^-+|-+$/g, '') // Trim hyphens from start/end
+}

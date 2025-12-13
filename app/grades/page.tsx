@@ -11,11 +11,13 @@ export const metadata: Metadata = {
 interface Politician {
   id: string
   name: string
+  slug: string | null
   state: string
   district: string
   office: string
   status: string
   grade: string
+  published: boolean
 }
 
 // Singleton pattern for Prisma
@@ -51,7 +53,7 @@ function formatStatus(status: string): string {
 async function getPoliticians(): Promise<Politician[]> {
   // Use raw query to avoid prepared statement cache issues
   const politicians: any[] = await prisma.$queryRaw`
-    SELECT id, name, state, district, office, status, grade
+    SELECT id, name, slug, state, district, office, status, grade, published
     FROM "Politician"
     ORDER BY name ASC
   `
@@ -59,11 +61,13 @@ async function getPoliticians(): Promise<Politician[]> {
   return politicians.map(p => ({
     id: p.id,
     name: p.name,
+    slug: p.slug,
     state: p.state,
     district: p.district || '',
     office: formatOffice(p.office),
     status: formatStatus(p.status),
     grade: formatGrade(p.grade),
+    published: p.published,
   }))
 }
 

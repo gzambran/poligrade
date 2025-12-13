@@ -2,8 +2,43 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { PrismaClient } from '@prisma/client'
+import { generateSlug } from '@/lib/constants'
 
 const prisma = new PrismaClient()
+
+// Generate a unique slug, adding state suffix if needed
+async function generateUniqueSlug(name: string, state: string): Promise<string> {
+  const baseSlug = generateSlug(name)
+
+  // Check if slug exists
+  const existing = await prisma.politician.findUnique({
+    where: { slug: baseSlug }
+  })
+
+  if (!existing) {
+    return baseSlug
+  }
+
+  // Add state suffix
+  const slugWithState = `${baseSlug}-${state.toLowerCase()}`
+  const existingWithState = await prisma.politician.findUnique({
+    where: { slug: slugWithState }
+  })
+
+  if (!existingWithState) {
+    return slugWithState
+  }
+
+  // Add number suffix if still exists
+  let counter = 2
+  let finalSlug = `${slugWithState}-${counter}`
+  while (await prisma.politician.findUnique({ where: { slug: finalSlug } })) {
+    counter++
+    finalSlug = `${slugWithState}-${counter}`
+  }
+
+  return finalSlug
+}
 
 // GET /api/admin/politicians - List all politicians with optional filters
 export async function GET(request: NextRequest) {
@@ -19,6 +54,7 @@ export async function GET(request: NextRequest) {
     const office = searchParams.get('office')
     const status = searchParams.get('status')
     const grade = searchParams.get('grade')
+    const published = searchParams.get('published')
 
     const where: any = {}
 
@@ -36,6 +72,9 @@ export async function GET(request: NextRequest) {
     }
     if (grade) {
       where.grade = grade
+    }
+    if (published) {
+      where.published = published === 'true'
     }
 
     const politicians = await prisma.politician.findMany({
@@ -62,7 +101,12 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { name, state, district, office, status, grade } = body
+    const {
+      name, state, district, office, status, grade,
+      photoUrl, party, currentPosition, runningFor, published,
+      economicPolicy, businessLabor, healthCare, education, environment,
+      civilRights, votingRights, immigrationForeignAffairs, publicSafety
+    } = body
 
     // Validation
     if (!name || !state || !office || !status || !grade) {
@@ -72,14 +116,34 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Generate unique slug
+    const slug = await generateUniqueSlug(name, state)
+
     const politician = await prisma.politician.create({
       data: {
         name,
+        slug,
         state,
         district: district || null,
         office,
         status,
         grade,
+        // Profile fields
+        photoUrl: photoUrl || null,
+        party: party || null,
+        currentPosition: currentPosition || null,
+        runningFor: runningFor || null,
+        published: published ?? false,
+        // Issue fields
+        economicPolicy: economicPolicy || null,
+        businessLabor: businessLabor || null,
+        healthCare: healthCare || null,
+        education: education || null,
+        environment: environment || null,
+        civilRights: civilRights || null,
+        votingRights: votingRights || null,
+        immigrationForeignAffairs: immigrationForeignAffairs || null,
+        publicSafety: publicSafety || null,
       },
     })
 

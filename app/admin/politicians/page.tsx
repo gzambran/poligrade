@@ -30,6 +30,7 @@ export default function AdminPoliticiansPage() {
   const [officeFilter, setOfficeFilter] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
   const [gradeFilter, setGradeFilter] = useState('')
+  const [publishedFilter, setPublishedFilter] = useState('')
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1)
@@ -43,6 +44,7 @@ export default function AdminPoliticiansPage() {
       if (officeFilter) params.append('office', officeFilter)
       if (statusFilter) params.append('status', statusFilter)
       if (gradeFilter) params.append('grade', gradeFilter)
+      if (publishedFilter) params.append('published', publishedFilter)
 
       const response = await fetch(`/api/admin/politicians?${params}`)
       if (!response.ok) throw new Error('Failed to fetch')
@@ -53,7 +55,7 @@ export default function AdminPoliticiansPage() {
     } finally {
       setLoading(false)
     }
-  }, [nameFilter, stateFilter, officeFilter, statusFilter, gradeFilter])
+  }, [nameFilter, stateFilter, officeFilter, statusFilter, gradeFilter, publishedFilter])
 
   useEffect(() => {
     fetchPoliticians()
@@ -65,13 +67,14 @@ export default function AdminPoliticiansPage() {
     setOfficeFilter('')
     setStatusFilter('')
     setGradeFilter('')
+    setPublishedFilter('')
     setCurrentPage(1)
   }
 
   // Reset to page 1 when filters change
   useEffect(() => {
     setCurrentPage(1)
-  }, [nameFilter, stateFilter, officeFilter, statusFilter, gradeFilter])
+  }, [nameFilter, stateFilter, officeFilter, statusFilter, gradeFilter, publishedFilter])
 
   // Pagination calculations
   const totalPages = Math.ceil(politicians.length / itemsPerPage)
@@ -277,6 +280,22 @@ export default function AdminPoliticiansPage() {
               </Select>
             </div>
 
+            <div className="flex-1 min-w-[180px]">
+              <Select
+                placeholder="All"
+                selectedKeys={publishedFilter ? [publishedFilter] : []}
+                onChange={(e) => setPublishedFilter(e.target.value)}
+                aria-label="Filter by published status"
+                classNames={{ trigger: 'h-12' }}
+                startContent={
+                  <span className="text-xs text-foreground/60 font-medium mr-2">Published</span>
+                }
+              >
+                <SelectItem key="true" value="true">Yes</SelectItem>
+                <SelectItem key="false" value="false">No</SelectItem>
+              </Select>
+            </div>
+
             <Button
               color="default"
               variant="light"
@@ -303,12 +322,13 @@ export default function AdminPoliticiansPage() {
                   <th className="text-left p-4 font-semibold">Office</th>
                   <th className="text-left p-4 font-semibold">Status</th>
                   <th className="text-left p-4 font-semibold">Grade</th>
+                  <th className="text-left p-4 font-semibold">Published</th>
                 </tr>
               </thead>
               <tbody>
                 {politicians.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="text-center p-8">
+                    <td colSpan={7} className="text-center p-8">
                       <div className="flex flex-col items-center gap-3">
                         <p className="text-foreground/80 font-medium">No politicians found</p>
                         <Button
@@ -342,6 +362,17 @@ export default function AdminPoliticiansPage() {
                           }}
                         >
                           {formatGrade(politician.grade)}
+                        </span>
+                      </td>
+                      <td className="p-4">
+                        <span
+                          className={`inline-block px-2 py-1 rounded text-xs font-medium ${
+                            politician.published
+                              ? 'bg-success-100 text-success-700 dark:bg-success-900/30 dark:text-success-400'
+                              : 'bg-default-100 text-default-500'
+                          }`}
+                        >
+                          {politician.published ? 'Yes' : 'No'}
                         </span>
                       </td>
                     </tr>

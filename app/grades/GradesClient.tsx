@@ -2,17 +2,20 @@
 
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { useSearchParams } from 'next/navigation'
+import Link from 'next/link'
 import { Card, CardBody, Input, Select, SelectItem, Button } from '@nextui-org/react'
 import { STATE_MAP, US_STATES, getGradeColor } from '@/lib/constants'
 
 interface Politician {
   id: string
   name: string
+  slug: string | null
   state: string
   district: string
   office: string
   status: string
   grade: string
+  published: boolean
 }
 
 const GRADE_OPTIONS = ['Progressive', 'Liberal', 'Centrist', 'Moderate', 'Conservative', 'Nationalist']
@@ -477,7 +480,18 @@ export default function GradesClient({ politicians }: GradesClientProps) {
                       key={politician.id}
                       className="border-b border-divider hover:bg-default-100 transition-colors"
                     >
-                      <td className="p-4">{politician.name}</td>
+                      <td className="p-4">
+                        {politician.published && politician.slug ? (
+                          <Link
+                            href={`/politicians/${politician.slug}`}
+                            className="text-primary hover:underline font-medium"
+                          >
+                            {politician.name}
+                          </Link>
+                        ) : (
+                          politician.name
+                        )}
+                      </td>
                       <td className="p-4">{STATE_MAP[politician.state] || politician.state}</td>
                       <td className="p-4">{politician.district || '—'}</td>
                       <td className="p-4">{politician.office}</td>
@@ -522,7 +536,18 @@ export default function GradesClient({ politicians }: GradesClientProps) {
                     key={politician.id}
                     className="p-4 hover:bg-default-100 transition-colors"
                   >
-                    <div className="font-semibold text-lg mb-3">{politician.name}</div>
+                    <div className="font-semibold text-lg mb-3">
+                      {politician.published && politician.slug ? (
+                        <Link
+                          href={`/politicians/${politician.slug}`}
+                          className="text-primary hover:underline"
+                        >
+                          {politician.name}
+                        </Link>
+                      ) : (
+                        politician.name
+                      )}
+                    </div>
                     <div className="grid grid-cols-2 gap-3 bg-default-50 -mx-4 px-4 py-3 rounded-lg text-sm">
                       <div>
                         <span className="text-xs font-semibold text-foreground/60 block mb-1">State</span>
