@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { Button, Card, CardBody } from '@nextui-org/react'
+import { GRADE_COLORS } from '@/lib/constants'
 
 const policyParties = [
   {
@@ -136,35 +137,43 @@ export default function Home() {
           </div>
 
           <div className="mx-auto max-w-6xl grid gap-8 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-            {policyParties.map((party, index) => (
-              <div
-                key={index}
-                className="group relative rounded-2xl border border-divider/50 bg-content1 p-8 shadow-lg backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:border-primary"
-              >
-                <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-primary/0 to-primary/5 opacity-0 transition-opacity group-hover:opacity-100" />
-                <div className="relative z-10">
-                  <h3 className="mb-6 text-2xl font-bold">{party.name}</h3>
-                  <ul className="space-y-4">
-                    {party.policies.map((policy, pIndex) => (
-                      <li key={pIndex} className="flex items-start gap-3 text-base leading-relaxed">
-                        <svg
-                          className="mt-1 h-5 w-5 flex-shrink-0 text-primary"
-                          fill="currentColor"
-                          viewBox="0 0 20 20"
-                        >
-                          <path
-                            fillRule="evenodd"
-                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
-                        <span>{policy}</span>
-                      </li>
-                    ))}
-                  </ul>
+            {policyParties.map((party, index) => {
+              const partyColor = GRADE_COLORS[party.name]?.bg || '#888'
+              return (
+                <div
+                  key={index}
+                  className="group relative rounded-2xl border border-divider/50 bg-content1 p-8 shadow-lg backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:shadow-2xl overflow-hidden"
+                  style={{ borderTopColor: partyColor, borderTopWidth: '4px' }}
+                >
+                  <div
+                    className="absolute inset-0 rounded-2xl opacity-0 transition-opacity group-hover:opacity-100"
+                    style={{ background: `linear-gradient(to bottom right, transparent, ${partyColor}10)` }}
+                  />
+                  <div className="relative z-10">
+                    <h3 className="mb-6 text-2xl font-bold" style={{ color: partyColor }}>{party.name}</h3>
+                    <ul className="space-y-4">
+                      {party.policies.map((policy, pIndex) => (
+                        <li key={pIndex} className="flex items-start gap-3 text-base leading-relaxed">
+                          <svg
+                            className="mt-1 h-5 w-5 flex-shrink-0"
+                            style={{ color: partyColor }}
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                          <span>{policy}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
 
           <p className="mx-auto mt-12 max-w-3xl text-center text-sm text-foreground/50 italic">

@@ -11,9 +11,9 @@ export default function Logo() {
       <Image
         src="/logo.svg"
         alt="PoliGrade"
-        width={96}
-        height={96}
-        className="w-24 h-24 pointer-events-none"
+        width={192}
+        height={192}
+        className="w-48 h-48 pointer-events-none"
         priority
       />
     </Link>

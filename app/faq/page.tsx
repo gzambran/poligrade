@@ -28,17 +28,43 @@ export default function FAQPage() {
       answer: (
         <>
           <p className="mb-4">
-            Despite having more access to information than at any point in history, voters continue to make decisions that defy logic. Most Americans now get their political news from social media or television, both of which are deeply compromised. Social media is flooded with bots—many funded by foreign entities—whose sole purpose is to spread lies and encourage division
+            Despite having more access to information than at any point in history, voters continue to make decisions that defy logic. Most Americans now get their political news from social media or television, both of which are deeply compromised. Social media is flooded with bots—many funded by foreign entities—whose sole purpose is to spread lies and encourage division.
             <SourcePill href="https://www.csis.org/analysis/russian-bot-farm-used-ai-lie-americans-what-now">CSIS</SourcePill>
-            <SourcePill href="https://azmirror.com/2024/10/08/how-foreign-operations-are-manipulating-social-media-to-influence-your-views/">AZ Mirror</SourcePill>. Meanwhile, major news networks like CNN, CBS, and Fox are either controlled by political or corporate interests, or have{' '}
+            <SourcePill href="https://azmirror.com/2024/10/08/how-foreign-operations-are-manipulating-social-media-to-influence-your-views/">AZ Mirror</SourcePill>
+          </p>
+          <p className="mb-4">
+            Meanwhile, four of the six recognized major news networks have made moves to ingratiate themselves with politicians or partisan interests. ABC settled a lawsuit brought by Donald Trump for a total of $16 million, despite legal observers generally viewing Trump&apos;s suit as weak and difficult to win.
+            <SourcePill href="https://www.dailyjournal.com/article/382451-the-trump-settlement-with-abc-news-sets-a-dangerous-precedent-for-defamation-law">Daily Journal</SourcePill>
+          </p>
+          <p className="mb-4">
+            CBS also settled a lawsuit with Donald Trump for $16 million, even though legal experts said the case had little chance of success, as it was based on a long-standing and common editorial practice prior to the suit being filed.
+            <SourcePill href="https://reason.com/2025/07/02/by-settling-trumps-laughable-lawsuit-against-cbs-paramount-strikes-a-blow-at-freedom-of-the-press/">Reason</SourcePill>
+            {' '}It has further been suggested that this settlement was made to help secure smoother approval from the FCC for Paramount&apos;s pending merger.
+            <SourcePill href="https://www.poynter.org/commentary/2025/cbs-settlement-with-trump-why/">Poynter</SourcePill>
+            {' '}CBS News also recently cut a 60 Minutes segment featuring Trump from 73 minutes down to 27 minutes, specifically excluding portions where Trump praised the new head of CBS and bragged about how much money the company gave him in the earlier settlement.
+            <SourcePill href="https://www.cnn.com/2025/11/02/media/trump-cbs-60-minutes-norah-odonnell-ellison-bari-weiss">CNN</SourcePill>
+            {' '}These actions have led to resignations within the network, as well as the cancellation of The Colbert Show following Colbert&apos;s criticism of the settlement.
+            <SourcePill href="https://www.independent.co.uk/news/world/americas/us-politics/cbs-news-bari-weiss-editor-reaction-b2839064.html">Independent</SourcePill>
+            <SourcePill href="https://www.cbsnews.com/news/60-minutes-executive-producer-bill-owens-to-depart-cbs-news">CBS News</SourcePill>
+          </p>
+          <p className="mb-4">
+            CNN has begun routinely airing misinformation under the guise of &quot;sharing all opinions,&quot; even as hosts and anchors call out falsehoods in real time.
+            <SourcePill href="https://www.theguardian.com/us-news/2023/may/10/fact-checking-the-trump-town-hall">The Guardian</SourcePill>
+            <SourcePill href="https://www.businessinsider.com/mike-lindell-voter-fraud-election-donald-trump-biden-china-cnn-2021-8">Business Insider</SourcePill>
+            {' '}The network has also launched roundtable programming where right-wing commentators have made inflammatory remarks, including sarcastically telling a fellow guest, &quot;I hope your beeper doesn&apos;t go off.&quot;
+            <SourcePill href="https://www.washingtonpost.com/style/media/2024/10/29/cnn-ryan-girdusky-mehdi-hasan-beeper-comment/">Washington Post</SourcePill>
+          </p>
+          <p className="mb-4">
+            Fox almost exclusively airs misinformation and propaganda, recently costing the network{' '}
             <a
               href="https://apnews.com/article/fox-news-dominion-lawsuit-trial-trump-2020-0ac71f75acfacc52ea80b3e747fb0afe"
               target="_blank"
               rel="noopener noreferrer"
               className="text-primary underline hover:text-primary-600 transition-colors"
             >
-              lost near billion-dollar lawsuits for knowingly lying to their audiences
-            </a>. These outlets prioritize sensationalism and outrage to keep viewers dependent, ensuring higher profits at the expense of truth.
+              nearly a billion dollars in a lawsuit
+            </a>
+            {' '}for knowingly lying to its audience.
           </p>
           <p className="mb-4">
             A clear example of the damage caused by misinformation and blatant falsehoods can be seen in how Americans perceive basic demographic facts. A recent YouGov poll found that Americans believe 40% of the population is Black (actual: ~12%), 20% is transgender (actual: ~1%), one-third are first-generation immigrants (actual: ~10%), and that one in five households earn over $500,000 per year (actual: ~1%).
@@ -59,7 +85,7 @@ export default function FAQPage() {
     },
     {
       question: 'What sources, data, and criteria are used to determine how a politician is graded?',
-      answer: 'We grade politicians based on their policy beliefs across ten criteria carefully chosen for clarity and span: Economic Policy, Business & Labor, Health Care, Education, Environment, Civil Rights, Voting Rights, Immigration & Foreign Affairs, Public Safety, and Messaging. Our data comes from credible, publicly available sources such as official campaign websites, voting records where applicable, interviews, and reputable databases like Wikipedia. We do not rely on overtly biased or agenda-driven sources—especially those that lack accountability or incentive for accuracy. We also recognize that every elected office has a different scope of power, so our evaluations are adjusted accordingly. For instance, a Governor\'s stance on foreign affairs holds less weight than that of a Senator, since Governors have little authority in that area. This ensures that every grade reflects both beliefs and relevance to the office held.',
+      answer: 'We grade politicians based on their policy beliefs across ten criteria carefully chosen for clarity and span: Economic Policy, Business & Labor, Health Care, Education, Environment, Civil Rights, Voting Rights, Immigration & Foreign Affairs, Public Safety, and Messaging. Our data comes from credible, publicly available sources such as official campaign websites, voting records where applicable, interviews, and reputable databases like Wikipedia. We do not rely on overtly biased or agenda-driven sources—especially those that lack accountability or incentive for accuracy. We make a practice of not handling the publication of a candidate\'s policy positions for them. Readers should take note of what a candidate chooses to clearly outline on their issues or policy page. Our hope is to help reinforce how important it is for voters to be given clear policy positions, and to encourage candidates to take that responsibility more seriously.',
     },
     {
       question: 'How often are grades updated?',

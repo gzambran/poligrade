@@ -441,7 +441,12 @@ export default function GradesClient({ politicians }: GradesClientProps) {
                       <td className="p-4">{politician.name}</td>
                       <td className="p-4">{STATE_MAP[politician.state] || politician.state}</td>
                       <td className="p-4">{politician.district || '—'}</td>
-                      <td className="p-4">{politician.office}</td>
+                      <td className="p-4">
+                        {politician.office}
+                        {politician.status && politician.status !== 'None' && (
+                          <span className="text-foreground/60"> ({politician.status})</span>
+                        )}
+                      </td>
                       <td className="p-4">
                         <span
                           className="inline-block px-3 py-1 rounded-full text-sm font-semibold"
@@ -494,7 +499,12 @@ export default function GradesClient({ politicians }: GradesClientProps) {
                       </div>
                       <div>
                         <span className="text-xs font-semibold text-foreground/60 block mb-1">Office</span>
-                        <span className="font-medium">{politician.office}</span>
+                        <span className="font-medium">
+                          {politician.office}
+                          {politician.status && politician.status !== 'None' && (
+                            <span className="text-foreground/60"> ({politician.status})</span>
+                          )}
+                        </span>
                       </div>
                       <div>
                         <span className="text-xs font-semibold text-foreground/60 block mb-1">Grade</span>
