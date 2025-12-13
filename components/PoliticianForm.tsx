@@ -1,12 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import {
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
   Button,
   Input,
   Select,
@@ -16,6 +13,8 @@ import {
   Accordion,
   AccordionItem,
   Divider,
+  Card,
+  CardBody,
 } from '@nextui-org/react'
 import {
   US_STATES,
@@ -28,13 +27,12 @@ import {
   ISSUE_CRITERIA,
 } from '@/lib/constants'
 import { Politician, PoliticianFormData } from '@/lib/types'
+import DeleteConfirmModal from '@/components/DeleteConfirmModal'
 
-interface PoliticianModalProps {
-  isOpen: boolean
-  onClose: () => void
-  onSave: (politician: PoliticianFormData) => Promise<void>
-  onDelete?: () => void
+interface PoliticianFormProps {
   politician?: Politician | null
+  onSave: (data: PoliticianFormData) => Promise<void>
+  onDelete?: () => Promise<void>
 }
 
 const emptyFormData: PoliticianFormData = {
@@ -60,17 +58,17 @@ const emptyFormData: PoliticianFormData = {
   publicSafety: null,
 }
 
-export default function PoliticianModal({
-  isOpen,
-  onClose,
+export default function PoliticianForm({
+  politician,
   onSave,
   onDelete,
-  politician,
-}: PoliticianModalProps) {
+}: PoliticianFormProps) {
+  const router = useRouter()
   const [formData, setFormData] = useState<PoliticianFormData>(emptyFormData)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [photoError, setPhotoError] = useState(false)
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
 
   const isEditMode = !!politician
 
@@ -85,7 +83,7 @@ export default function PoliticianModal({
     }
     setError('')
     setPhotoError(false)
-  }, [politician, isOpen])
+  }, [politician])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -98,18 +96,28 @@ export default function PoliticianModal({
 
     setSaving(true)
     try {
-      // Default status to NONE if not set
       const dataToSave = {
         ...formData,
         status: formData.status || 'NONE',
       }
       await onSave(dataToSave)
-      onClose()
+      router.push('/admin/politicians')
     } catch (err: any) {
       setError(err.message || 'Failed to save politician')
     } finally {
       setSaving(false)
     }
+  }
+
+  const handleDelete = async () => {
+    if (!onDelete) return
+    try {
+      await onDelete()
+      router.push('/admin/politicians')
+    } catch (err: any) {
+      setError(err.message || 'Failed to delete politician')
+    }
+    setShowDeleteModal(false)
   }
 
   const showDistrictField = formData.office === 'HOUSE_REPRESENTATIVE'
@@ -122,32 +130,20 @@ export default function PoliticianModal({
   }
 
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-      size="3xl"
-      scrollBehavior="inside"
-      classNames={{
-        base: "max-h-[90vh]",
-        body: "py-6",
-      }}
-    >
-      <ModalContent>
-        <form onSubmit={handleSubmit}>
-          <ModalHeader>
-            {isEditMode ? 'Edit Politician' : 'Add New Politician'}
-          </ModalHeader>
-          <ModalBody>
-            {error && (
-              <div className="p-4 rounded-lg bg-danger-50 text-danger-700 dark:bg-danger-900/20 dark:text-danger-400 mb-4">
-                {error}
-              </div>
-            )}
+    <>
+      <form onSubmit={handleSubmit}>
+        {error && (
+          <div className="p-4 rounded-lg bg-danger-50 text-danger-700 dark:bg-danger-900/20 dark:text-danger-400 mb-6">
+            {error}
+          </div>
+        )}
 
-            {/* Grade Information Section */}
+        {/* Grade Information Section */}
+        <Card className="mb-6">
+          <CardBody className="p-6">
+            <h2 className="text-xl font-semibold mb-6">Grade Information</h2>
+
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-foreground/80">Grade Information</h3>
-
               <Input
                 label="Name"
                 value={formData.name}
@@ -225,13 +221,15 @@ export default function PoliticianModal({
                 </Select>
               </div>
             </div>
+          </CardBody>
+        </Card>
 
-            <Divider className="my-6" />
+        {/* Profile Information Section */}
+        <Card className="mb-6">
+          <CardBody className="p-6">
+            <h2 className="text-xl font-semibold mb-6">Profile Information</h2>
 
-            {/* Profile Information Section */}
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-foreground/80">Profile Information</h3>
-
               {/* Photo URL with Preview */}
               <div className="flex gap-4 items-start">
                 <Input
@@ -299,52 +297,54 @@ export default function PoliticianModal({
                 classNames={{ input: 'text-base', inputWrapper: 'h-12' }}
               />
             </div>
+          </CardBody>
+        </Card>
 
-            <Divider className="my-6" />
+        {/* Policy Positions Section */}
+        <Card className="mb-6">
+          <CardBody className="p-6">
+            <h2 className="text-xl font-semibold mb-2">Policy Positions</h2>
+            <p className="text-sm text-foreground/60 mb-6">
+              Enter stances for each policy area. Start each stance with &quot;For&quot; or &quot;Against&quot;.
+            </p>
 
-            {/* Issue Positions Section */}
-            <div>
-              <h3 className="text-lg font-semibold text-foreground/80 mb-4">Policy Positions</h3>
-              <p className="text-sm text-foreground/60 mb-4">
-                Enter stances for each policy area. Start each stance with &quot;For&quot; or &quot;Against&quot;.
-              </p>
-
-              <Accordion variant="splitted" className="gap-2">
-                {ISSUE_CRITERIA.map(({ key, label }) => (
-                  <AccordionItem
-                    key={key}
-                    aria-label={label}
-                    title={label}
+            <Accordion variant="splitted" className="gap-2">
+              {ISSUE_CRITERIA.map(({ key, label }) => (
+                <AccordionItem
+                  key={key}
+                  aria-label={label}
+                  title={label}
+                  classNames={{
+                    title: 'text-base font-medium',
+                    content: 'pt-0 pb-4',
+                  }}
+                  indicator={
+                    (formData as any)[key] ? (
+                      <span className="text-success text-xs font-medium">Has content</span>
+                    ) : undefined
+                  }
+                >
+                  <Textarea
+                    placeholder={`Enter ${label} positions...`}
+                    value={(formData as any)[key] || ''}
+                    onChange={(e) => updateIssueField(key, e.target.value)}
+                    minRows={3}
                     classNames={{
-                      title: 'text-base font-medium',
-                      content: 'pt-0 pb-4',
+                      input: 'text-base',
                     }}
-                    indicator={
-                      (formData as any)[key] ? (
-                        <span className="text-success text-xs font-medium">Has content</span>
-                      ) : undefined
-                    }
-                  >
-                    <Textarea
-                      placeholder={`Enter ${label} positions...`}
-                      value={(formData as any)[key] || ''}
-                      onChange={(e) => updateIssueField(key, e.target.value)}
-                      minRows={3}
-                      classNames={{
-                        input: 'text-base',
-                      }}
-                    />
-                  </AccordionItem>
-                ))}
-              </Accordion>
-            </div>
+                  />
+                </AccordionItem>
+              ))}
+            </Accordion>
+          </CardBody>
+        </Card>
 
-            <Divider className="my-6" />
-
-            {/* Published Toggle */}
-            <div className="flex items-center justify-between p-4 rounded-lg bg-default-100">
+        {/* Published Toggle */}
+        <Card className="mb-8">
+          <CardBody className="p-6">
+            <div className="flex items-center justify-between">
               <div>
-                <p className="font-medium">Published</p>
+                <p className="font-medium text-lg">Published</p>
                 <p className="text-sm text-foreground/60">
                   When enabled, the profile page becomes accessible to the public
                 </p>
@@ -353,44 +353,55 @@ export default function PoliticianModal({
                 isSelected={formData.published}
                 onValueChange={(val) => setFormData({ ...formData, published: val })}
                 color="success"
+                size="lg"
               />
             </div>
-          </ModalBody>
-          <ModalFooter>
-            <div className="flex justify-between w-full">
-              <div>
-                {isEditMode && onDelete && (
-                  <Button
-                    color="danger"
-                    variant="flat"
-                    onPress={onDelete}
-                    isDisabled={saving}
-                  >
-                    Delete
-                  </Button>
-                )}
-              </div>
-              <div className="flex gap-2">
-                <Button
-                  color="default"
-                  variant="flat"
-                  onPress={onClose}
-                  isDisabled={saving}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  color="primary"
-                  type="submit"
-                  isLoading={saving}
-                >
-                  {isEditMode ? 'Save Changes' : 'Add Politician'}
-                </Button>
-              </div>
-            </div>
-          </ModalFooter>
-        </form>
-      </ModalContent>
-    </Modal>
+          </CardBody>
+        </Card>
+
+        {/* Action Buttons */}
+        <div className="flex justify-between items-center">
+          <div>
+            {isEditMode && onDelete && (
+              <Button
+                color="danger"
+                variant="flat"
+                onPress={() => setShowDeleteModal(true)}
+                isDisabled={saving}
+              >
+                Delete Politician
+              </Button>
+            )}
+          </div>
+          <div className="flex gap-3">
+            <Button
+              as={Link}
+              href="/admin/politicians"
+              color="default"
+              variant="flat"
+              isDisabled={saving}
+            >
+              Cancel
+            </Button>
+            <Button
+              color="primary"
+              type="submit"
+              isLoading={saving}
+              size="lg"
+            >
+              {isEditMode ? 'Save Changes' : 'Add Politician'}
+            </Button>
+          </div>
+        </div>
+      </form>
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={handleDelete}
+        politicianName={politician?.name || ''}
+      />
+    </>
   )
 }

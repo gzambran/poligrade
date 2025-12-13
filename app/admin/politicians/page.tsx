@@ -2,6 +2,8 @@
 
 import { useSession, signOut } from 'next-auth/react'
 import { useState, useEffect, useCallback } from 'react'
+import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import {
   Button,
   Input,
@@ -12,17 +14,13 @@ import {
   Spinner,
 } from '@nextui-org/react'
 import { US_STATES, STATE_MAP, OFFICE_OPTIONS, STATUS_OPTIONS, GRADE_OPTIONS, formatOffice, formatStatus, formatGrade, getGradeColor } from '@/lib/constants'
-import PoliticianModal from '@/components/PoliticianModal'
-import DeleteConfirmModal from '@/components/DeleteConfirmModal'
-import { Politician, PoliticianFormData } from '@/lib/types'
+import { Politician } from '@/lib/types'
 
 export default function AdminPoliticiansPage() {
   const { data: session } = useSession()
+  const router = useRouter()
   const [politicians, setPoliticians] = useState<Politician[]>([])
   const [loading, setLoading] = useState(true)
-  const [selectedPolitician, setSelectedPolitician] = useState<Politician | null>(null)
-  const [showAddModal, setShowAddModal] = useState(false)
-  const [showDeleteModal, setShowDeleteModal] = useState(false)
 
   // Filter state
   const [nameFilter, setNameFilter] = useState('')
@@ -83,63 +81,7 @@ export default function AdminPoliticiansPage() {
   const currentPoliticians = politicians.slice(startIndex, endIndex)
 
   const handleRowClick = (politician: Politician) => {
-    setSelectedPolitician(politician)
-  }
-
-  const handleSave = async (politician: PoliticianFormData) => {
-    if (politician.id) {
-      // Update existing
-      const response = await fetch(`/api/admin/politicians/${politician.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(politician),
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to update politician')
-      }
-    } else {
-      // Create new
-      const response = await fetch('/api/admin/politicians', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(politician),
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to create politician')
-      }
-    }
-
-    // Refresh list
-    await fetchPoliticians()
-    setSelectedPolitician(null)
-    setShowAddModal(false)
-  }
-
-  const handleDelete = async () => {
-    if (!selectedPolitician) return
-
-    const response = await fetch(`/api/admin/politicians/${selectedPolitician.id}`, {
-      method: 'DELETE',
-    })
-
-    if (!response.ok) {
-      throw new Error('Failed to delete politician')
-    }
-
-    // Refresh list
-    await fetchPoliticians()
-    setSelectedPolitician(null)
-    setShowDeleteModal(false)
-  }
-
-  const handleCloseEditModal = () => {
-    setSelectedPolitician(null)
-  }
-
-  const handleOpenDeleteModal = () => {
-    setShowDeleteModal(true)
+    router.push(`/admin/politicians/${politician.id}/edit`)
   }
 
   if (loading) {
@@ -162,9 +104,10 @@ export default function AdminPoliticiansPage() {
         </div>
         <div className="flex gap-2">
           <Button
+            as={Link}
+            href="/admin/politicians/new"
             color="primary"
             size="lg"
-            onPress={() => setShowAddModal(true)}
           >
             Add Politician
           </Button>
@@ -444,26 +387,6 @@ export default function AdminPoliticiansPage() {
           </Button>
         </nav>
       )}
-
-      {/* Add/Edit Modal */}
-      <PoliticianModal
-        isOpen={showAddModal || !!selectedPolitician}
-        onClose={() => {
-          setShowAddModal(false)
-          setSelectedPolitician(null)
-        }}
-        onSave={handleSave}
-        onDelete={handleOpenDeleteModal}
-        politician={selectedPolitician}
-      />
-
-      {/* Delete Confirmation Modal */}
-      <DeleteConfirmModal
-        isOpen={showDeleteModal}
-        onClose={() => setShowDeleteModal(false)}
-        onConfirm={handleDelete}
-        politicianName={selectedPolitician?.name || ''}
-      />
     </div>
   )
 }
