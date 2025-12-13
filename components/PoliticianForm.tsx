@@ -320,7 +320,7 @@ export default function PoliticianForm({
                   }}
                   indicator={
                     (formData as any)[key] ? (
-                      <span className="text-success text-xs font-medium">Has content</span>
+                      <span className="text-success text-lg" aria-label="Has content">✓</span>
                     ) : undefined
                   }
                 >
