@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { PrismaClient } from '@prisma/client'
 import { generateSlug } from '@/lib/constants'
+import { serializePolicyField } from '@/lib/types'
 
 const prisma = new PrismaClient()
 
@@ -134,16 +135,16 @@ export async function POST(request: NextRequest) {
         currentPosition: currentPosition || null,
         runningFor: runningFor || null,
         published: published ?? false,
-        // Issue fields
-        economicPolicy: economicPolicy || null,
-        businessLabor: businessLabor || null,
-        healthCare: healthCare || null,
-        education: education || null,
-        environment: environment || null,
-        civilRights: civilRights || null,
-        votingRights: votingRights || null,
-        immigrationForeignAffairs: immigrationForeignAffairs || null,
-        publicSafety: publicSafety || null,
+        // Issue fields (serialize arrays to JSON strings)
+        economicPolicy: serializePolicyField(economicPolicy),
+        businessLabor: serializePolicyField(businessLabor),
+        healthCare: serializePolicyField(healthCare),
+        education: serializePolicyField(education),
+        environment: serializePolicyField(environment),
+        civilRights: serializePolicyField(civilRights),
+        votingRights: serializePolicyField(votingRights),
+        immigrationForeignAffairs: serializePolicyField(immigrationForeignAffairs),
+        publicSafety: serializePolicyField(publicSafety),
       },
     })
 

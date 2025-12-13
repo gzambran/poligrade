@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { Card, CardBody, Chip } from '@nextui-org/react'
 import { getGradeColor, ISSUE_CRITERIA } from '@/lib/constants'
+import { parsePolicyField } from '@/lib/types'
 
 interface PoliticianProfileProps {
   politician: {
@@ -44,14 +45,14 @@ const PARTY_COLORS: Record<string, string> = {
 export default function PoliticianProfile({ politician }: PoliticianProfileProps) {
   const gradeColor = getGradeColor(politician.gradeLabel)
 
-  // Build issue list from politician data
+  // Build issue list from politician data, parsing JSON arrays
   const issues = ISSUE_CRITERIA
     .map(({ key, label }) => ({
       key,
       label,
-      content: politician[key as keyof typeof politician] as string | null,
+      stances: parsePolicyField(politician[key as keyof typeof politician] as string | null),
     }))
-    .filter(issue => issue.content)
+    .filter(issue => issue.stances.length > 0)
 
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -155,9 +156,13 @@ export default function PoliticianProfile({ politician }: PoliticianProfileProps
                   <h3 className="text-lg font-semibold mb-3 text-primary">
                     {issue.label}
                   </h3>
-                  <p className="text-foreground/80 whitespace-pre-wrap leading-relaxed">
-                    {issue.content}
-                  </p>
+                  <ul className="list-disc list-inside space-y-2 text-foreground/80">
+                    {issue.stances.map((stance, index) => (
+                      <li key={index} className="leading-relaxed">
+                        {stance}
+                      </li>
+                    ))}
+                  </ul>
                 </CardBody>
               </Card>
             ))}

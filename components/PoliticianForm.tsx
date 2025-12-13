@@ -9,10 +9,8 @@ import {
   Select,
   SelectItem,
   Switch,
-  Textarea,
   Accordion,
   AccordionItem,
-  Divider,
   Card,
   CardBody,
 } from '@nextui-org/react'
@@ -26,7 +24,7 @@ import {
   RUNNING_FOR_OPTIONS,
   ISSUE_CRITERIA,
 } from '@/lib/constants'
-import { Politician, PoliticianFormData } from '@/lib/types'
+import { Politician, PoliticianFormData, parsePolicyField } from '@/lib/types'
 import DeleteConfirmModal from '@/components/DeleteConfirmModal'
 
 interface PoliticianFormProps {
@@ -47,15 +45,15 @@ const emptyFormData: PoliticianFormData = {
   currentPosition: null,
   runningFor: null,
   published: false,
-  economicPolicy: null,
-  businessLabor: null,
-  healthCare: null,
-  education: null,
-  environment: null,
-  civilRights: null,
-  votingRights: null,
-  immigrationForeignAffairs: null,
-  publicSafety: null,
+  economicPolicy: [],
+  businessLabor: [],
+  healthCare: [],
+  education: [],
+  environment: [],
+  civilRights: [],
+  votingRights: [],
+  immigrationForeignAffairs: [],
+  publicSafety: [],
 }
 
 export default function PoliticianForm({
@@ -77,6 +75,16 @@ export default function PoliticianForm({
       setFormData({
         ...emptyFormData,
         ...politician,
+        // Parse policy fields from JSON strings to arrays
+        economicPolicy: parsePolicyField(politician.economicPolicy),
+        businessLabor: parsePolicyField(politician.businessLabor),
+        healthCare: parsePolicyField(politician.healthCare),
+        education: parsePolicyField(politician.education),
+        environment: parsePolicyField(politician.environment),
+        civilRights: parsePolicyField(politician.civilRights),
+        votingRights: parsePolicyField(politician.votingRights),
+        immigrationForeignAffairs: parsePolicyField(politician.immigrationForeignAffairs),
+        publicSafety: parsePolicyField(politician.publicSafety),
       })
     } else {
       setFormData(emptyFormData)
@@ -121,12 +129,43 @@ export default function PoliticianForm({
   }
 
   const showDistrictField = formData.office === 'HOUSE_REPRESENTATIVE'
+  const showRunningForDistrict = formData.runningFor === 'HOUSE_REPRESENTATIVE'
 
-  const updateIssueField = (key: string, value: string) => {
+  // Policy list management helpers
+  const getPolicyArray = (key: string): string[] => {
+    return (formData as any)[key] || []
+  }
+
+  const addPolicyItem = (key: string) => {
+    const current = getPolicyArray(key)
     setFormData({
       ...formData,
-      [key]: value || null,
+      [key]: [...current, ''],
     })
+  }
+
+  const updatePolicyItem = (key: string, index: number, value: string) => {
+    const current = getPolicyArray(key)
+    const updated = [...current]
+    updated[index] = value
+    setFormData({
+      ...formData,
+      [key]: updated,
+    })
+  }
+
+  const removePolicyItem = (key: string, index: number) => {
+    const current = getPolicyArray(key)
+    const updated = current.filter((_, i) => i !== index)
+    setFormData({
+      ...formData,
+      [key]: updated,
+    })
+  }
+
+  const hasNonEmptyPolicies = (key: string): boolean => {
+    const arr = getPolicyArray(key)
+    return arr.some(item => item.trim() !== '')
   }
 
   return (
@@ -289,6 +328,16 @@ export default function PoliticianForm({
                 </Select>
               </div>
 
+              {showRunningForDistrict && (
+                <Input
+                  label="District"
+                  placeholder="e.g., 14, At-Large"
+                  value={formData.district || ''}
+                  onChange={(e) => setFormData({ ...formData, district: e.target.value || null })}
+                  classNames={{ input: 'text-base', inputWrapper: 'h-12' }}
+                />
+              )}
+
               <Input
                 label="Current Position"
                 placeholder="e.g., Governor of California, U.S. Senator"
@@ -305,7 +354,7 @@ export default function PoliticianForm({
           <CardBody className="p-6">
             <h2 className="text-xl font-semibold mb-2">Policy Positions</h2>
             <p className="text-sm text-foreground/60 mb-6">
-              Enter stances for each policy area. Start each stance with &quot;For&quot; or &quot;Against&quot;.
+              Add individual stances for each policy area. Start each stance with &quot;For&quot; or &quot;Against&quot;.
             </p>
 
             <Accordion variant="splitted" className="gap-2">
@@ -320,20 +369,43 @@ export default function PoliticianForm({
                     indicator: 'data-[open=true]:rotate-0',
                   }}
                   indicator={
-                    (formData as any)[key] ? (
+                    hasNonEmptyPolicies(key) ? (
                       <span className="text-success text-lg" aria-label="Has content">✓</span>
                     ) : undefined
                   }
                 >
-                  <Textarea
-                    placeholder={`Enter ${label} positions...`}
-                    value={(formData as any)[key] || ''}
-                    onChange={(e) => updateIssueField(key, e.target.value)}
-                    minRows={3}
-                    classNames={{
-                      input: 'text-base',
-                    }}
-                  />
+                  <div className="space-y-2">
+                    {getPolicyArray(key).map((item, index) => (
+                      <div key={index} className="flex gap-2 items-center">
+                        <Input
+                          placeholder={`e.g., For expanding Medicare coverage`}
+                          value={item}
+                          onChange={(e) => updatePolicyItem(key, index, e.target.value)}
+                          classNames={{ input: 'text-base', inputWrapper: 'h-10' }}
+                          className="flex-1"
+                        />
+                        <Button
+                          isIconOnly
+                          size="sm"
+                          variant="flat"
+                          color="danger"
+                          onPress={() => removePolicyItem(key, index)}
+                          aria-label="Remove policy"
+                        >
+                          ×
+                        </Button>
+                      </div>
+                    ))}
+                    <Button
+                      size="sm"
+                      variant="flat"
+                      color="primary"
+                      onPress={() => addPolicyItem(key)}
+                      className="mt-2"
+                    >
+                      + Add Policy
+                    </Button>
+                  </div>
                 </AccordionItem>
               ))}
             </Accordion>
