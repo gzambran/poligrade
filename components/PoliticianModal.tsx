@@ -288,20 +288,6 @@ export default function PoliticianModal({
                 </Select>
               </div>
 
-              {/* Published Toggle */}
-              <div className="flex items-center justify-between p-4 rounded-lg bg-default-100">
-                <div>
-                  <p className="font-medium">Published</p>
-                  <p className="text-sm text-foreground/60">
-                    When published, the profile page becomes accessible to voters
-                  </p>
-                </div>
-                <Switch
-                  isSelected={formData.published}
-                  onValueChange={(val) => setFormData({ ...formData, published: val })}
-                  color="success"
-                />
-              </div>
             </div>
 
             <Divider className="my-6" />
@@ -341,6 +327,23 @@ export default function PoliticianModal({
                   </AccordionItem>
                 ))}
               </Accordion>
+            </div>
+
+            <Divider className="my-6" />
+
+            {/* Published Toggle */}
+            <div className="flex items-center justify-between p-4 rounded-lg bg-default-100">
+              <div>
+                <p className="font-medium">Published</p>
+                <p className="text-sm text-foreground/60">
+                  When enabled, the profile page becomes accessible to the public
+                </p>
+              </div>
+              <Switch
+                isSelected={formData.published}
+                onValueChange={(val) => setFormData({ ...formData, published: val })}
+                color="success"
+              />
             </div>
           </ModalBody>
           <ModalFooter>
