@@ -127,6 +127,10 @@ export default function PoliticianModal({
       onClose={onClose}
       size="3xl"
       scrollBehavior="inside"
+      classNames={{
+        base: "max-h-[90vh]",
+        body: "py-6",
+      }}
     >
       <ModalContent>
         <form onSubmit={handleSubmit}>
@@ -140,9 +144,9 @@ export default function PoliticianModal({
               </div>
             )}
 
-            {/* Basic Information Section */}
+            {/* Grade Information Section */}
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-foreground/80">Basic Information</h3>
+              <h3 className="text-lg font-semibold text-foreground/80">Grade Information</h3>
 
               <Input
                 label="Name"
@@ -151,37 +155,6 @@ export default function PoliticianModal({
                 isRequired
                 classNames={{ input: 'text-base', inputWrapper: 'h-12' }}
               />
-
-              {/* Photo URL with Preview */}
-              <div className="flex gap-4 items-start">
-                <Input
-                  label="Photo URL"
-                  placeholder="https://example.com/photo.jpg"
-                  value={formData.photoUrl || ''}
-                  onChange={(e) => {
-                    setFormData({ ...formData, photoUrl: e.target.value || null })
-                    setPhotoError(false)
-                  }}
-                  className="flex-1"
-                  classNames={{ input: 'text-base', inputWrapper: 'h-12' }}
-                />
-                {formData.photoUrl && (
-                  <div className="w-20 h-20 rounded-lg overflow-hidden bg-default-100 flex-shrink-0 border border-divider">
-                    {!photoError ? (
-                      <img
-                        src={formData.photoUrl}
-                        alt="Preview"
-                        className="w-full h-full object-cover"
-                        onError={() => setPhotoError(true)}
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-xs text-danger">
-                        Invalid URL
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Select
@@ -199,29 +172,6 @@ export default function PoliticianModal({
                 </Select>
 
                 <Select
-                  label="Party"
-                  selectedKeys={formData.party ? [formData.party] : []}
-                  onChange={(e) => setFormData({ ...formData, party: e.target.value || null })}
-                  classNames={{ trigger: 'h-12' }}
-                >
-                  {PARTY_OPTIONS.map(option => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </Select>
-              </div>
-
-              <Input
-                label="Current Position"
-                placeholder="e.g., Governor of California, U.S. Senator"
-                value={formData.currentPosition || ''}
-                onChange={(e) => setFormData({ ...formData, currentPosition: e.target.value || null })}
-                classNames={{ input: 'text-base', inputWrapper: 'h-12' }}
-              />
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Select
                   label="Office"
                   selectedKeys={formData.office ? [formData.office] : []}
                   onChange={(e) => setFormData({ ...formData, office: e.target.value })}
@@ -229,19 +179,6 @@ export default function PoliticianModal({
                   classNames={{ trigger: 'h-12' }}
                 >
                   {OFFICE_OPTIONS.map(option => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </Select>
-
-                <Select
-                  label="Running For"
-                  selectedKeys={formData.runningFor ? [formData.runningFor] : ['']}
-                  onChange={(e) => setFormData({ ...formData, runningFor: e.target.value || null })}
-                  classNames={{ trigger: 'h-12' }}
-                >
-                  {RUNNING_FOR_OPTIONS.map(option => (
                     <SelectItem key={option.value} value={option.value}>
                       {option.label}
                     </SelectItem>
@@ -287,7 +224,80 @@ export default function PoliticianModal({
                   ))}
                 </Select>
               </div>
+            </div>
 
+            <Divider className="my-6" />
+
+            {/* Profile Information Section */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-foreground/80">Profile Information</h3>
+
+              {/* Photo URL with Preview */}
+              <div className="flex gap-4 items-start">
+                <Input
+                  label="Photo URL"
+                  placeholder="https://example.com/photo.jpg"
+                  value={formData.photoUrl || ''}
+                  onChange={(e) => {
+                    setFormData({ ...formData, photoUrl: e.target.value || null })
+                    setPhotoError(false)
+                  }}
+                  className="flex-1"
+                  classNames={{ input: 'text-base', inputWrapper: 'h-12' }}
+                />
+                {formData.photoUrl && (
+                  <div className="w-20 h-20 rounded-lg overflow-hidden bg-default-100 flex-shrink-0 border border-divider">
+                    {!photoError ? (
+                      <img
+                        src={formData.photoUrl}
+                        alt="Preview"
+                        className="w-full h-full object-cover"
+                        onError={() => setPhotoError(true)}
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-xs text-danger">
+                        Invalid URL
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Select
+                  label="Party"
+                  selectedKeys={formData.party ? [formData.party] : []}
+                  onChange={(e) => setFormData({ ...formData, party: e.target.value || null })}
+                  classNames={{ trigger: 'h-12' }}
+                >
+                  {PARTY_OPTIONS.map(option => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </Select>
+
+                <Select
+                  label="Running For"
+                  selectedKeys={formData.runningFor ? [formData.runningFor] : ['']}
+                  onChange={(e) => setFormData({ ...formData, runningFor: e.target.value || null })}
+                  classNames={{ trigger: 'h-12' }}
+                >
+                  {RUNNING_FOR_OPTIONS.map(option => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </Select>
+              </div>
+
+              <Input
+                label="Current Position"
+                placeholder="e.g., Governor of California, U.S. Senator"
+                value={formData.currentPosition || ''}
+                onChange={(e) => setFormData({ ...formData, currentPosition: e.target.value || null })}
+                classNames={{ input: 'text-base', inputWrapper: 'h-12' }}
+              />
             </div>
 
             <Divider className="my-6" />
