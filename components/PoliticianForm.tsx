@@ -317,6 +317,7 @@ export default function PoliticianForm({
                   classNames={{
                     title: 'text-base font-medium',
                     content: 'pt-0 pb-4',
+                    indicator: 'data-[open=true]:rotate-0',
                   }}
                   indicator={
                     (formData as any)[key] ? (
