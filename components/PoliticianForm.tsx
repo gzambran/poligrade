@@ -340,11 +340,19 @@ export default function PoliticianForm({
         </Card>
 
         {/* Published Toggle */}
-        <Card className="mb-8">
+        <Card
+          className={`mb-8 border-l-4 ${
+            formData.published
+              ? 'border-l-success bg-success-50/50 dark:bg-success-900/10'
+              : 'border-l-primary'
+          }`}
+        >
           <CardBody className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="font-medium text-lg">Published</p>
+                <p className="font-semibold text-lg">
+                  {formData.published ? 'Published' : 'Ready to Publish?'}
+                </p>
                 <p className="text-sm text-foreground/60">
                   When enabled, the profile page becomes accessible to the public
                 </p>
