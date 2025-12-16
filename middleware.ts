@@ -6,7 +6,7 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   // Admin routes - check NextAuth session
-  if (pathname.startsWith('/admin/politicians') || pathname.startsWith('/api/admin')) {
+  if (pathname.startsWith('/admin/politicians') || pathname.startsWith('/admin/position-parser') || pathname.startsWith('/api/admin')) {
     const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET })
 
     if (!token) {
@@ -19,5 +19,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/admin/politicians/:path*', '/api/admin/:path*'],
+  matcher: ['/admin/politicians/:path*', '/admin/position-parser', '/api/admin/:path*'],
 }

@@ -1,0 +1,16 @@
+services:
+  position-parser:
+    build: ./server
+    container_name: position-parser
+    restart: unless-stopped
+    ports:
+      - "8001:8001"
+    volumes:
+      - ./server/cache:/app/cache
+    env_file:
+      - ./server/.env
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3

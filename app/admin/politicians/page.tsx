@@ -112,6 +112,16 @@ export default function AdminPoliticiansPage() {
             Add Politician
           </Button>
           <Button
+            as={Link}
+            href="/admin/position-parser"
+            target="_blank"
+            color="secondary"
+            variant="flat"
+            size="lg"
+          >
+            Position Parser
+          </Button>
+          <Button
             color="default"
             variant="flat"
             size="lg"
