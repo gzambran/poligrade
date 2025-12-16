@@ -41,6 +41,40 @@ async function generateUniqueSlug(name: string, state: string, excludeId: string
   return finalSlug
 }
 
+// GET /api/admin/politicians/[id] - Get single politician
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const session = await getServerSession(authOptions)
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const { id } = await params
+
+    const politician = await prisma.politician.findUnique({
+      where: { id },
+    })
+
+    if (!politician) {
+      return NextResponse.json(
+        { error: 'Politician not found' },
+        { status: 404 }
+      )
+    }
+
+    return NextResponse.json(politician)
+  } catch (error) {
+    console.error('Error fetching politician:', error)
+    return NextResponse.json(
+      { error: 'Failed to fetch politician' },
+      { status: 500 }
+    )
+  }
+}
+
 // PUT /api/admin/politicians/[id] - Update politician
 export async function PUT(
   request: NextRequest,
@@ -62,52 +96,59 @@ export async function PUT(
       civilRights, votingRights, immigrationForeignAffairs, publicSafety
     } = body
 
-    // Validation
-    if (!name || !state || !office || !status || !grade) {
+    // Check if this is a full update or policy-only update
+    const isPolicyOnlyUpdate = !name && !state && !office && !status && !grade
+
+    // For full updates, require all fields
+    if (!isPolicyOnlyUpdate && (!name || !state || !office || !status || !grade)) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
       )
     }
 
-    // Check if name changed and regenerate slug if needed
-    const current = await prisma.politician.findUnique({
-      where: { id },
-      select: { name: true }
-    })
+    // Build update data based on what was provided
+    const updateData: Record<string, any> = {}
 
-    let slug: string | undefined
-    if (current && current.name !== name) {
-      slug = await generateUniqueSlug(name, state, id)
+    // Only include core fields if doing a full update
+    if (!isPolicyOnlyUpdate) {
+      // Check if name changed and regenerate slug if needed
+      const current = await prisma.politician.findUnique({
+        where: { id },
+        select: { name: true }
+      })
+
+      if (current && current.name !== name) {
+        updateData.slug = await generateUniqueSlug(name, state, id)
+      }
+
+      updateData.name = name
+      updateData.state = state
+      updateData.district = district || null
+      updateData.office = office
+      updateData.status = status
+      updateData.grade = grade
+      updateData.photoUrl = photoUrl || null
+      updateData.party = party || null
+      updateData.currentPosition = currentPosition || null
+      updateData.runningFor = runningFor || null
+      updateData.published = published ?? false
     }
+
+    // Always include policy fields if provided
+    if (economicPolicy !== undefined) updateData.economicPolicy = serializePolicyField(economicPolicy)
+    if (businessLabor !== undefined) updateData.businessLabor = serializePolicyField(businessLabor)
+    if (healthCare !== undefined) updateData.healthCare = serializePolicyField(healthCare)
+    if (education !== undefined) updateData.education = serializePolicyField(education)
+    if (environment !== undefined) updateData.environment = serializePolicyField(environment)
+    if (civilRights !== undefined) updateData.civilRights = serializePolicyField(civilRights)
+    if (votingRights !== undefined) updateData.votingRights = serializePolicyField(votingRights)
+    if (immigrationForeignAffairs !== undefined) updateData.immigrationForeignAffairs = serializePolicyField(immigrationForeignAffairs)
+    if (publicSafety !== undefined) updateData.publicSafety = serializePolicyField(publicSafety)
 
     const politician = await prisma.politician.update({
       where: { id },
-      data: {
-        name,
-        ...(slug && { slug }),
-        state,
-        district: district || null,
-        office,
-        status,
-        grade,
-        // Profile fields
-        photoUrl: photoUrl || null,
-        party: party || null,
-        currentPosition: currentPosition || null,
-        runningFor: runningFor || null,
-        published: published ?? false,
-        // Issue fields (serialize arrays to JSON strings)
-        economicPolicy: serializePolicyField(economicPolicy),
-        businessLabor: serializePolicyField(businessLabor),
-        healthCare: serializePolicyField(healthCare),
-        education: serializePolicyField(education),
-        environment: serializePolicyField(environment),
-        civilRights: serializePolicyField(civilRights),
-        votingRights: serializePolicyField(votingRights),
-        immigrationForeignAffairs: serializePolicyField(immigrationForeignAffairs),
-        publicSafety: serializePolicyField(publicSafety),
-      },
+      data: updateData,
     })
 
     return NextResponse.json(politician)
