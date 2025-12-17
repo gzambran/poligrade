@@ -503,7 +503,7 @@ export default function PositionParserClient() {
                         color={positionCategories[index] === 'uncategorized' && isPositionSelected(index) ? 'warning' : 'default'}
                         items={[
                           { key: 'uncategorized', label: 'Uncategorized' },
-                          ...ISSUE_CRITERIA
+                          ...ISSUE_CRITERIA.map(c => ({ key: c.key, label: c.label }))
                         ]}
                       >
                         {(item) => (
