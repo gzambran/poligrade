@@ -16,18 +16,11 @@ class PolicyPosition(BaseModel):
     note: Optional[str] = None
 
 
-class PolicyCategory(BaseModel):
-    """A category containing policy positions."""
-
-    category: str
-    positions: list[PolicyPosition]
-
-
 class ParserResponse(BaseModel):
     """Full response from the parser."""
 
     politician_name: Optional[str] = None
-    categories: list[PolicyCategory]
+    positions: list[PolicyPosition]
     warnings: Optional[list[str]] = None
 
 

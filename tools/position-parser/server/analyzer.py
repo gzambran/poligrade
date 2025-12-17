@@ -67,6 +67,6 @@ def analyze_content(
         # Return a structured error response
         return {
             "politician_name": None,
-            "categories": [],
+            "positions": [],
             "warnings": [f"Failed to parse Claude response as JSON: {str(e)}"],
         }

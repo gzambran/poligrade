@@ -8,16 +8,15 @@ import {
   Card,
   CardBody,
   Spinner,
-  Accordion,
-  AccordionItem,
-  Chip,
   Checkbox,
   Autocomplete,
   AutocompleteItem,
+  Select,
+  SelectItem,
 } from '@nextui-org/react'
 import { ISSUE_CRITERIA } from '@/lib/constants'
 import { Politician, parsePolicyField } from '@/lib/types'
-import type { ParserResponse, SSEEvent, PolicyCategory } from '@/lib/position-parser-types'
+import type { ParserResponse, SSEEvent } from '@/lib/position-parser-types'
 
 const MAX_URLS = 4
 
@@ -47,8 +46,11 @@ export default function PositionParserClient() {
   const [selectedPoliticianId, setSelectedPoliticianId] = useState<string | null>(null)
   const [loadingPoliticians, setLoadingPoliticians] = useState(true)
 
-  // Position selection (key: "category-index", value: boolean)
-  const [selectedPositions, setSelectedPositions] = useState<Record<string, boolean>>({})
+  // Position selection (index: boolean)
+  const [selectedPositions, setSelectedPositions] = useState<Record<number, boolean>>({})
+
+  // Category assignment (index: category key or "uncategorized")
+  const [positionCategories, setPositionCategories] = useState<Record<number, string>>({})
 
   // Save state
   const [saving, setSaving] = useState(false)
@@ -90,6 +92,7 @@ export default function PositionParserClient() {
     setResult(null)
     setErrors([])
     setSelectedPositions({})
+    setPositionCategories({})
     setSaveSuccess(false)
 
     const apiUrl = process.env.NEXT_PUBLIC_POSITION_PARSER_URL
@@ -139,14 +142,15 @@ export default function PositionParserClient() {
                 setProgress(event.message)
               } else if (event.type === 'result') {
                 setResult(event.data)
-                // Select all positions by default
-                const allSelected: Record<string, boolean> = {}
-                event.data.categories.forEach(cat => {
-                  cat.positions.forEach((_, idx) => {
-                    allSelected[`${cat.category}-${idx}`] = true
-                  })
+                // Select all positions by default, all categories start as "uncategorized"
+                const allSelected: Record<number, boolean> = {}
+                const allCategories: Record<number, string> = {}
+                event.data.positions.forEach((_, idx) => {
+                  allSelected[idx] = true
+                  allCategories[idx] = 'uncategorized'
                 })
                 setSelectedPositions(allSelected)
+                setPositionCategories(allCategories)
                 if (event.data.warnings && event.data.warnings.length > 0) {
                   setErrors(event.data.warnings)
                 }
@@ -167,24 +171,53 @@ export default function PositionParserClient() {
     }
   }
 
-  const getCategoryByLabel = (label: string): PolicyCategory | undefined => {
-    return result?.categories.find(c => c.category === label)
-  }
-
-  const togglePosition = (category: string, index: number) => {
-    const key = `${category}-${index}`
+  const togglePosition = (index: number) => {
     setSelectedPositions(prev => ({
       ...prev,
-      [key]: !prev[key],
+      [index]: !prev[index],
     }))
   }
 
-  const isPositionSelected = (category: string, index: number): boolean => {
-    return selectedPositions[`${category}-${index}`] || false
+  const updatePositionCategory = (index: number, categoryKey: string) => {
+    setPositionCategories(prev => ({
+      ...prev,
+      [index]: categoryKey,
+    }))
+  }
+
+  const isPositionSelected = (index: number): boolean => {
+    return selectedPositions[index] || false
   }
 
   const getSelectedCount = (): number => {
     return Object.values(selectedPositions).filter(Boolean).length
+  }
+
+  const canSaveToProfile = (): boolean => {
+    if (!selectedPoliticianId || getSelectedCount() === 0) return false
+
+    // Check if any selected position has "uncategorized" category
+    for (const [idx, isSelected] of Object.entries(selectedPositions)) {
+      if (isSelected && positionCategories[Number(idx)] === 'uncategorized') {
+        return false
+      }
+    }
+    return true
+  }
+
+  const getValidationMessage = (): string | null => {
+    if (!selectedPoliticianId) return 'Select a politician first'
+    if (getSelectedCount() === 0) return 'Select at least one position'
+
+    const uncategorizedCount = Object.entries(selectedPositions)
+      .filter(([idx, isSelected]) => isSelected && positionCategories[Number(idx)] === 'uncategorized')
+      .length
+
+    if (uncategorizedCount > 0) {
+      return `${uncategorizedCount} selected position${uncategorizedCount > 1 ? 's' : ''} need a category assigned`
+    }
+
+    return null
   }
 
   const handleAddToProfile = async () => {
@@ -199,21 +232,29 @@ export default function PositionParserClient() {
       if (!politicianRes.ok) throw new Error('Failed to fetch politician data')
       const politician: Politician = await politicianRes.json()
 
-      // Build update payload with merged positions
+      // Build update payload with merged positions grouped by category
       const updateData: Record<string, string[]> = {}
 
-      for (const category of result.categories) {
-        const fieldKey = CATEGORY_TO_KEY[category.category]
-        if (!fieldKey) continue
+      // Group selected positions by their assigned category
+      const positionsByCategory: Record<string, string[]> = {}
 
+      result.positions.forEach((position, idx) => {
+        if (!isPositionSelected(idx)) return
+
+        const categoryKey = positionCategories[idx]
+        if (!categoryKey || categoryKey === 'uncategorized') return
+
+        if (!positionsByCategory[categoryKey]) {
+          positionsByCategory[categoryKey] = []
+        }
+        positionsByCategory[categoryKey].push(position.stance)
+      })
+
+      // For each category with new positions, merge with existing
+      for (const [fieldKey, newPositions] of Object.entries(positionsByCategory)) {
         // Get existing positions
         const existingRaw = (politician as any)[fieldKey]
         const existing = parsePolicyField(existingRaw)
-
-        // Get selected new positions
-        const newPositions = category.positions
-          .filter((_, idx) => isPositionSelected(category.category, idx))
-          .map(p => p.stance)
 
         // Merge (append new to existing)
         updateData[fieldKey] = [...existing, ...newPositions]
@@ -388,100 +429,93 @@ export default function PositionParserClient() {
                   )}
                 </h2>
                 <p className="text-sm text-foreground/60 mt-1">
-                  {getSelectedCount()} positions selected
+                  {getSelectedCount()} of {result.positions.length} positions selected
                 </p>
               </div>
-              <Button
-                color="success"
-                size="lg"
-                onPress={handleAddToProfile}
-                isDisabled={!selectedPoliticianId || getSelectedCount() === 0 || saving}
-                isLoading={saving}
-              >
-                Add Selected to Profile
-              </Button>
+              <div className="flex flex-col items-end gap-2">
+                <Button
+                  color="success"
+                  size="lg"
+                  onPress={handleAddToProfile}
+                  isDisabled={!canSaveToProfile() || saving}
+                  isLoading={saving}
+                >
+                  Add Selected to Profile
+                </Button>
+                {getValidationMessage() && (
+                  <p className="text-xs text-warning">
+                    {getValidationMessage()}
+                  </p>
+                )}
+              </div>
             </div>
 
-            <Accordion variant="splitted" selectionMode="multiple">
-              {ISSUE_CRITERIA.map(({ key, label }) => {
-                const category = getCategoryByLabel(label)
-                const hasPositions = category && category.positions.length > 0
-                const positionCount = category?.positions.length || 0
-                const selectedInCategory = category?.positions.filter((_, idx) =>
-                  isPositionSelected(label, idx)
-                ).length || 0
-
-                return (
-                  <AccordionItem
-                    key={key}
-                    title={
-                      <div className="flex items-center gap-2">
-                        <span>{label}</span>
-                        {hasPositions && (
-                          <Chip size="sm" color="success" variant="flat">
-                            {selectedInCategory}/{positionCount}
-                          </Chip>
-                        )}
-                      </div>
-                    }
-                    classNames={{
-                      content: 'pb-4',
-                    }}
-                  >
-                    {hasPositions ? (
-                      <div className="space-y-3">
-                        {category.positions.map((position, index) => (
-                          <div
-                            key={index}
-                            className={`p-3 rounded-lg transition-colors ${
-                              isPositionSelected(label, index)
-                                ? 'bg-success-100 dark:bg-success-900/20'
-                                : 'bg-default-100'
-                            }`}
-                          >
-                            <div className="flex items-start gap-3">
-                              <Checkbox
-                                isSelected={isPositionSelected(label, index)}
-                                onValueChange={() => togglePosition(label, index)}
-                                className="mt-0.5"
-                              />
-                              <div className="flex-1">
-                                <p className="font-medium mb-1">{position.stance}</p>
-                                {position.note && (
-                                  <p className="text-sm text-warning mb-1">
-                                    Note: {position.note}
-                                  </p>
-                                )}
-                                <div className="text-xs text-foreground/50">
-                                  Sources:{' '}
-                                  {position.source_urls.map((url, i) => (
-                                    <span key={url}>
-                                      <a
-                                        href={url}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="text-primary hover:underline"
-                                      >
-                                        {url}
-                                      </a>
-                                      {i < position.source_urls.length - 1 && ', '}
-                                    </span>
-                                  ))}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
+            <div className="space-y-3">
+              {result.positions.map((position, index) => (
+                <div
+                  key={index}
+                  className={`p-4 rounded-lg border-2 transition-colors ${
+                    isPositionSelected(index)
+                      ? 'border-success bg-success-50 dark:bg-success-900/10'
+                      : 'border-default-200 bg-default-50'
+                  }`}
+                >
+                  <div className="flex items-start gap-3">
+                    <Checkbox
+                      isSelected={isPositionSelected(index)}
+                      onValueChange={() => togglePosition(index)}
+                      className="mt-1"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium mb-2">{position.stance}</p>
+                      {position.note && (
+                        <p className="text-sm text-warning mb-2">
+                          Note: {position.note}
+                        </p>
+                      )}
+                      <div className="text-xs text-foreground/50 mb-3">
+                        Sources:{' '}
+                        {position.source_urls.map((url, i) => (
+                          <span key={url}>
+                            <a
+                              href={url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-primary hover:underline"
+                            >
+                              {url}
+                            </a>
+                            {i < position.source_urls.length - 1 && ', '}
+                          </span>
                         ))}
                       </div>
-                    ) : (
-                      <p className="text-foreground/60 italic py-2">
-                        No concrete policies found for this category
-                      </p>
-                    )}
-                  </AccordionItem>
-                )
-              })}
-            </Accordion>
+                      <Select
+                        label="Category"
+                        placeholder="Select a category"
+                        selectedKeys={positionCategories[index] ? [positionCategories[index]] : []}
+                        onSelectionChange={(keys) => {
+                          const selected = Array.from(keys)[0] as string
+                          updatePositionCategory(index, selected)
+                        }}
+                        size="sm"
+                        classNames={{ base: 'max-w-xs' }}
+                        isRequired={isPositionSelected(index)}
+                        color={positionCategories[index] === 'uncategorized' && isPositionSelected(index) ? 'warning' : 'default'}
+                      >
+                        <SelectItem key="uncategorized" value="uncategorized">
+                          Uncategorized
+                        </SelectItem>
+                        {ISSUE_CRITERIA.map(({ key, label }) => (
+                          <SelectItem key={key} value={key}>
+                            {label}
+                          </SelectItem>
+                        ))}
+                      </Select>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </CardBody>
         </Card>
       )}

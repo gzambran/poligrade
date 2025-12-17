@@ -9,16 +9,10 @@ export interface PolicyPosition {
   note?: string | null
 }
 
-/** A category containing policy positions */
-export interface PolicyCategory {
-  category: string
-  positions: PolicyPosition[]
-}
-
 /** Full response from the parser backend */
 export interface ParserResponse {
   politician_name?: string | null
-  categories: PolicyCategory[]
+  positions: PolicyPosition[]
   warnings?: string[] | null
 }
 
