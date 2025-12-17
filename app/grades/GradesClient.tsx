@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { Card, CardBody, Input, Select, SelectItem, Button } from '@nextui-org/react'
-import { STATE_MAP, US_STATES, getGradeColor } from '@/lib/constants'
+import { STATE_MAP, US_STATES, getGradeColor, formatOffice } from '@/lib/constants'
 
 interface Politician {
   id: string
@@ -19,7 +19,7 @@ interface Politician {
 }
 
 const GRADE_OPTIONS = ['Progressive', 'Liberal', 'Centrist', 'Moderate', 'Conservative', 'Nationalist']
-const OFFICE_OPTIONS = ['All', 'Governor', 'Senator', 'House Representative']
+const OFFICE_OPTIONS = ['All', 'N/A', 'Governor', 'Senator', 'House Representative']
 
 interface GradesClientProps {
   politicians: Politician[]
@@ -90,7 +90,7 @@ export default function GradesClient({ politicians }: GradesClientProps) {
     let filtered = politicians.filter(p => {
       const matchesName = !debouncedNameQuery || p.name.toLowerCase().includes(debouncedNameQuery.toLowerCase())
       const matchesState = !stateFilter || p.state === stateFilter
-      const matchesOffice = officeFilter === 'All' || p.office === officeFilter
+      const matchesOffice = officeFilter === 'All' || formatOffice(p.office) === officeFilter
       const matchesGrade = !gradeFilter || p.grade === gradeFilter
 
       return matchesName && matchesState && matchesOffice && matchesGrade
@@ -494,7 +494,7 @@ export default function GradesClient({ politicians }: GradesClientProps) {
                       </td>
                       <td className="p-4">{STATE_MAP[politician.state] || politician.state}</td>
                       <td className="p-4">{politician.district || '—'}</td>
-                      <td className="p-4">{politician.office}</td>
+                      <td className="p-4">{formatOffice(politician.office)}</td>
                       <td className="p-4">{politician.status !== 'None' ? politician.status : '—'}</td>
                       <td className="p-4">
                         <span
@@ -559,7 +559,7 @@ export default function GradesClient({ politicians }: GradesClientProps) {
                       </div>
                       <div>
                         <span className="text-xs font-semibold text-foreground/60 block mb-1">Office</span>
-                        <span className="font-medium">{politician.office}</span>
+                        <span className="font-medium">{formatOffice(politician.office)}</span>
                       </div>
                       <div>
                         <span className="text-xs font-semibold text-foreground/60 block mb-1">Status</span>
