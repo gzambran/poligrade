@@ -501,15 +501,16 @@ export default function PositionParserClient() {
                         classNames={{ base: 'max-w-xs' }}
                         isRequired={isPositionSelected(index)}
                         color={positionCategories[index] === 'uncategorized' && isPositionSelected(index) ? 'warning' : 'default'}
+                        items={[
+                          { key: 'uncategorized', label: 'Uncategorized' },
+                          ...ISSUE_CRITERIA
+                        ]}
                       >
-                        <SelectItem key="uncategorized" value="uncategorized">
-                          Uncategorized
-                        </SelectItem>
-                        {ISSUE_CRITERIA.map(({ key, label }) => (
-                          <SelectItem key={key} value={key}>
-                            {label}
+                        {(item) => (
+                          <SelectItem key={item.key}>
+                            {item.label}
                           </SelectItem>
-                        ))}
+                        )}
                       </Select>
                     </div>
                   </div>
