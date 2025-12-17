@@ -5,15 +5,15 @@ export default function Logo() {
   return (
     <Link
       href="/"
-      className="hover:opacity-80 transition-opacity cursor-pointer"
+      className="hover:opacity-80 transition-opacity cursor-pointer block h-16 overflow-visible"
       aria-label="PoliGrade Home"
     >
       <Image
         src="/logo.svg"
         alt="PoliGrade"
-        width={120}
-        height={40}
-        className="h-10 w-auto"
+        width={192}
+        height={192}
+        className="w-48 h-48 pointer-events-none"
         priority
       />
     </Link>

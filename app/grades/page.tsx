@@ -8,6 +8,9 @@ export const metadata: Metadata = {
   description: 'Browse and search policy-based grades for over 500 elected officials including governors, senators, and representatives. Filter by state, office, and political alignment.',
 }
 
+// Revalidate cached data every 60 seconds so published changes appear within a minute
+export const revalidate = 60
+
 interface Politician {
   id: string
   name: string
