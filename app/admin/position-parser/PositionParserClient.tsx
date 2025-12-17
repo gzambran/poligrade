@@ -500,7 +500,6 @@ export default function PositionParserClient() {
                         size="sm"
                         classNames={{ base: 'max-w-xs' }}
                         isRequired={isPositionSelected(index)}
-                        color={positionCategories[index] === 'uncategorized' && isPositionSelected(index) ? 'warning' : 'default'}
                         items={[
                           { key: 'uncategorized', label: 'Uncategorized' },
                           ...ISSUE_CRITERIA.map(c => ({ key: c.key, label: c.label }))
