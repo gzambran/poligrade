@@ -22,6 +22,7 @@ export const US_STATES = Object.keys(STATE_MAP).sort((a, b) =>
 
 // Office types
 export const OFFICE_OPTIONS = [
+  { value: 'NONE', label: 'N/A' },
   { value: 'GOVERNOR', label: 'Governor' },
   { value: 'SENATOR', label: 'Senator' },
   { value: 'HOUSE_REPRESENTATIVE', label: 'House Representative' },
@@ -36,6 +37,7 @@ export const STATUS_OPTIONS = [
 
 // Grade types
 export const GRADE_OPTIONS = [
+  { value: 'PENDING', label: 'Pending' },
   { value: 'PROGRESSIVE', label: 'Progressive' },
   { value: 'LIBERAL', label: 'Liberal' },
   { value: 'CENTRIST', label: 'Centrist' },
@@ -59,6 +61,7 @@ export const formatGrade = (grade: string) => {
 
 // Grade colors for consistent styling across the app
 export const GRADE_COLORS: Record<string, { bg: string; text: string }> = {
+  Pending: { bg: '#a6a6a6', text: '#a6a6a6' },
   Progressive: { bg: '#3c78d8', text: '#3c78d8' },
   Liberal: { bg: '#6d9eeb', text: '#6d9eeb' },
   Centrist: { bg: '#a4c2f4', text: '#a4c2f4' },
@@ -80,6 +83,7 @@ export const PARTY_OPTIONS = [
 // Running For options (Office + "Not Running")
 export const RUNNING_FOR_OPTIONS = [
   { value: '', label: 'Not Running' },
+  { value: 'NONE', label: 'N/A' },
   { value: 'GOVERNOR', label: 'Governor' },
   { value: 'SENATOR', label: 'Senator' },
   { value: 'HOUSE_REPRESENTATIVE', label: 'House Representative' },

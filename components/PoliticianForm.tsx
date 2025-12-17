@@ -39,7 +39,7 @@ const emptyFormData: PoliticianFormData = {
   district: null,
   office: '',
   status: '',
-  grade: '',
+  grade: 'PENDING',
   photoUrl: null,
   party: null,
   currentPosition: null,
