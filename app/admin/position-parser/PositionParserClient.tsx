@@ -145,7 +145,7 @@ export default function PositionParserClient() {
                 // Select all positions by default, all categories start as "uncategorized"
                 const allSelected: Record<number, boolean> = {}
                 const allCategories: Record<number, string> = {}
-                event.data.positions.forEach((_, idx) => {
+                ;(event.data.positions ?? []).forEach((_, idx) => {
                   allSelected[idx] = true
                   allCategories[idx] = 'uncategorized'
                 })
@@ -238,7 +238,7 @@ export default function PositionParserClient() {
       // Group selected positions by their assigned category
       const positionsByCategory: Record<string, string[]> = {}
 
-      result.positions.forEach((position, idx) => {
+      ;(result.positions ?? []).forEach((position, idx) => {
         if (!isPositionSelected(idx)) return
 
         const categoryKey = positionCategories[idx]
@@ -429,7 +429,7 @@ export default function PositionParserClient() {
                   )}
                 </h2>
                 <p className="text-sm text-foreground/60 mt-1">
-                  {getSelectedCount()} of {result.positions.length} positions selected
+                  {getSelectedCount()} of {result.positions?.length ?? 0} positions selected
                 </p>
               </div>
               <div className="flex flex-col items-end gap-2">
@@ -451,7 +451,7 @@ export default function PositionParserClient() {
             </div>
 
             <div className="space-y-3">
-              {result.positions.map((position, index) => (
+              {(result.positions ?? []).map((position, index) => (
                 <div
                   key={index}
                   className={`p-4 rounded-lg border-2 transition-colors ${
@@ -475,7 +475,7 @@ export default function PositionParserClient() {
                       )}
                       <div className="text-xs text-foreground/50 mb-3">
                         Sources:{' '}
-                        {position.source_urls.map((url, i) => (
+                        {(position.source_urls ?? []).map((url, i) => (
                           <span key={url}>
                             <a
                               href={url}
@@ -485,7 +485,7 @@ export default function PositionParserClient() {
                             >
                               {url}
                             </a>
-                            {i < position.source_urls.length - 1 && ', '}
+                            {i < (position.source_urls?.length ?? 0) - 1 && ', '}
                           </span>
                         ))}
                       </div>
