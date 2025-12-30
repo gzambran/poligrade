@@ -21,7 +21,7 @@ export default function FAQPage() {
   const faqData = [
     {
       question: 'What is PoliGrade?',
-      answer: 'PoliGrade is a platform that grades elected officials and candidates into six political categories—Progressive, Liberal, Centrist, Moderate, Conservative, and Nationalist—based on ten key criteria: Economic Policy, Business & Labor, Health Care, Education, Environment, Civil Rights, Voting Rights, Immigration & Foreign Affairs, Public Safety, and Messaging.',
+      answer: 'PoliGrade is a platform that grades elected officials and candidates into six political categories—Progressive, Liberal, Centrist, Moderate, Conservative, and Nationalist—based on ten key criteria: Economic Policy, Business & Labor, Health Care, Education, Environment, Civil Rights, Voting Rights & Democracy, Immigration & Foreign Affairs, Public Safety, and Messaging.',
     },
     {
       question: 'Why did you create PoliGrade?',
@@ -85,7 +85,7 @@ export default function FAQPage() {
     },
     {
       question: 'What sources, data, and criteria are used to determine how a politician is graded?',
-      answer: 'We grade politicians based on their policy beliefs across ten criteria carefully chosen for clarity and span: Economic Policy, Business & Labor, Health Care, Education, Environment, Civil Rights, Voting Rights, Immigration & Foreign Affairs, Public Safety, and Messaging. Our data comes from credible, publicly available sources such as official campaign websites, voting records where applicable, interviews, and reputable databases like Wikipedia. We do not rely on overtly biased or agenda-driven sources—especially those that lack accountability or incentive for accuracy. We make a practice of not handling the publication of a candidate\'s policy positions for them. Readers should take note of what a candidate chooses to clearly outline on their issues or policy page. Our hope is to help reinforce how important it is for voters to be given clear policy positions, and to encourage candidates to take that responsibility more seriously.',
+      answer: 'We grade politicians based on their policy beliefs across ten criteria carefully chosen for clarity and span: Economic Policy, Business & Labor, Health Care, Education, Environment, Civil Rights, Voting Rights & Democracy, Immigration & Foreign Affairs, Public Safety, and Messaging. Our data comes from credible, publicly available sources such as official campaign websites, voting records where applicable, interviews, and reputable databases like Wikipedia. We do not rely on overtly biased or agenda-driven sources—especially those that lack accountability or incentive for accuracy. We make a practice of not handling the publication of a candidate\'s policy positions for them. Readers should take note of what a candidate chooses to clearly outline on their issues or policy page. Our hope is to help reinforce how important it is for voters to be given clear policy positions, and to encourage candidates to take that responsibility more seriously.',
     },
     {
       question: 'How often are grades updated?',

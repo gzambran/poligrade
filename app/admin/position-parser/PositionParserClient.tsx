@@ -28,7 +28,7 @@ const CATEGORY_TO_KEY: Record<string, string> = {
   'Education': 'education',
   'Environment': 'environment',
   'Civil Rights': 'civilRights',
-  'Voting Rights': 'votingRights',
+  'Voting Rights & Democracy': 'votingRights',
   'Immigration & Foreign Affairs': 'immigrationForeignAffairs',
   'Public Safety': 'publicSafety',
 }

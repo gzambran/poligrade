@@ -86,7 +86,7 @@ export default function QuizClient({ questions }: QuizClientProps) {
                   'Education',
                   'Environment',
                   'Civil Rights',
-                  'Voting Rights',
+                  'Voting Rights & Democracy',
                   'Immigration & Foreign Affairs',
                   'Public Safety',
                 ].map((topic) => (

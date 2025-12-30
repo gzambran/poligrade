@@ -97,7 +97,7 @@ export const ISSUE_CRITERIA = [
   { key: 'education', label: 'Education' },
   { key: 'environment', label: 'Environment' },
   { key: 'civilRights', label: 'Civil Rights' },
-  { key: 'votingRights', label: 'Voting Rights' },
+  { key: 'votingRights', label: 'Voting Rights & Democracy' },
   { key: 'immigrationForeignAffairs', label: 'Immigration & Foreign Affairs' },
   { key: 'publicSafety', label: 'Public Safety' },
 ] as const
