@@ -2,10 +2,32 @@
 
 from __future__ import annotations
 
+from enum import Enum
 from typing import Optional
+from urllib.parse import urlparse
 
 import httpx
 from bs4 import BeautifulSoup
+
+
+class ScrapeErrorType(Enum):
+    """Types of scraping errors for user-friendly messaging."""
+    BLOCKED = "blocked"           # 403 - WAF/bot blocking
+    TIMEOUT = "timeout"           # Request timed out
+    SERVER_ERROR = "server_error" # 5xx errors
+    NOT_FOUND = "not_found"       # 404
+    INVALID_URL = "invalid_url"   # DNS failure, malformed URL
+    EMPTY_CONTENT = "empty_content"  # JS-rendered or no content
+    UNKNOWN = "unknown"           # Other errors
+
+
+def get_domain(url: str) -> str:
+    """Extract domain from URL for user-friendly messages."""
+    try:
+        parsed = urlparse(url)
+        return parsed.netloc or url
+    except Exception:
+        return url
 
 
 def normalize_url(url: str) -> str:
@@ -25,7 +47,7 @@ def normalize_url(url: str) -> str:
     return url
 
 
-async def scrape_url(url: str, timeout: float = 30.0) -> tuple[str, Optional[str]]:
+async def scrape_url(url: str, timeout: float = 30.0) -> tuple[str, Optional[tuple[ScrapeErrorType, str]]]:
     """
     Scrape a URL and extract text content.
 
@@ -34,9 +56,11 @@ async def scrape_url(url: str, timeout: float = 30.0) -> tuple[str, Optional[str
         timeout: Request timeout in seconds
 
     Returns:
-        Tuple of (content, error_message). If successful, error_message is None.
-        If failed, content is empty string and error_message describes the failure.
+        Tuple of (content, error). If successful, error is None.
+        If failed, content is empty string and error is (error_type, domain).
     """
+    domain = get_domain(url)
+
     try:
         async with httpx.AsyncClient(
             timeout=timeout,
@@ -61,19 +85,31 @@ async def scrape_url(url: str, timeout: float = 30.0) -> tuple[str, Optional[str
         lines = [line.strip() for line in text.splitlines() if line.strip()]
         cleaned_text = "\n".join(lines)
 
+        # Check for empty/minimal content (likely JS-rendered)
+        if len(cleaned_text) < 200:
+            return "", (ScrapeErrorType.EMPTY_CONTENT, domain)
+
         return cleaned_text, None
 
     except httpx.TimeoutException:
-        return "", f"Timeout while scraping {url}"
+        return "", (ScrapeErrorType.TIMEOUT, domain)
     except httpx.HTTPStatusError as e:
-        return "", f"HTTP {e.response.status_code} error for {url}"
-    except httpx.RequestError as e:
-        return "", f"Request failed for {url}: {str(e)}"
-    except Exception as e:
-        return "", f"Unexpected error scraping {url}: {str(e)}"
+        status = e.response.status_code
+        if status == 403:
+            return "", (ScrapeErrorType.BLOCKED, domain)
+        elif status == 404:
+            return "", (ScrapeErrorType.NOT_FOUND, domain)
+        elif status >= 500:
+            return "", (ScrapeErrorType.SERVER_ERROR, domain)
+        else:
+            return "", (ScrapeErrorType.UNKNOWN, domain)
+    except httpx.RequestError:
+        return "", (ScrapeErrorType.INVALID_URL, domain)
+    except Exception:
+        return "", (ScrapeErrorType.UNKNOWN, domain)
 
 
-async def scrape_urls(urls: list[str]) -> tuple[dict[str, str], list[str]]:
+async def scrape_urls(urls: list[str]) -> tuple[dict[str, str], list[tuple[ScrapeErrorType, str]]]:
     """
     Scrape multiple URLs concurrently.
 
@@ -81,14 +117,14 @@ async def scrape_urls(urls: list[str]) -> tuple[dict[str, str], list[str]]:
         urls: List of URLs to scrape
 
     Returns:
-        Tuple of (content_map, warnings).
+        Tuple of (content_map, errors).
         content_map: Dict mapping URL to its scraped content
-        warnings: List of warning messages for failed scrapes
+        errors: List of (error_type, domain) tuples for failed scrapes
     """
     import asyncio
 
     content_map: dict[str, str] = {}
-    warnings: list[str] = []
+    errors: list[tuple[ScrapeErrorType, str]] = []
 
     # Normalize URLs
     normalized_urls = [normalize_url(url) for url in urls]
@@ -101,12 +137,12 @@ async def scrape_urls(urls: list[str]) -> tuple[dict[str, str], list[str]]:
 
     for url, result in zip(normalized_urls, results):
         if isinstance(result, Exception):
-            warnings.append(f"Error scraping {url}: {str(result)}")
+            errors.append((ScrapeErrorType.UNKNOWN, get_domain(url)))
         else:
             content, error = result
             if error:
-                warnings.append(error)
+                errors.append(error)
             elif content:
                 content_map[url] = content
 
-    return content_map, warnings
+    return content_map, errors

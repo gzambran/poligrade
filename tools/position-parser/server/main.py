@@ -12,7 +12,42 @@ from cache import ResponseCache
 from config import get_settings
 from mock_data import MOCK_RESPONSE
 from models import ParseRequest, ParserResponse
-from scraper import scrape_urls
+from scraper import scrape_urls, ScrapeErrorType
+
+
+def get_user_friendly_error(error_type: ScrapeErrorType, domain: str) -> str:
+    """Convert a scrape error into a user-friendly message."""
+    messages = {
+        ScrapeErrorType.BLOCKED: (
+            f"{domain} is blocking automated access. "
+            "You'll need to visit this page in your browser and enter the content manually."
+        ),
+        ScrapeErrorType.EMPTY_CONTENT: (
+            f"{domain} uses JavaScript to load its content, which the parser can't read. "
+            "Please copy and paste the content manually."
+        ),
+        ScrapeErrorType.TIMEOUT: (
+            f"{domain} took too long to respond. "
+            "Try again, or if this persists, the site may be experiencing issues."
+        ),
+        ScrapeErrorType.SERVER_ERROR: (
+            f"{domain} is experiencing server issues and may be temporarily down. "
+            "Try again later."
+        ),
+        ScrapeErrorType.NOT_FOUND: (
+            f"The page on {domain} was not found (404). "
+            "Please check the URL and try again."
+        ),
+        ScrapeErrorType.INVALID_URL: (
+            f"Could not connect to {domain}. "
+            "Please check the URL is correct and the site is accessible."
+        ),
+        ScrapeErrorType.UNKNOWN: (
+            f"An unexpected error occurred while accessing {domain}. "
+            "Please try again or enter the content manually."
+        ),
+    }
+    return messages.get(error_type, messages[ScrapeErrorType.UNKNOWN])
 
 app = FastAPI(
     title="Position Parser API",
@@ -71,11 +106,20 @@ async def generate_sse(urls: list[str]) -> AsyncGenerator[str, None]:
     total_urls = len(urls)
     yield f"data: {json.dumps({'type': 'progress', 'message': f'Scraping {total_urls} URL(s)...'})}\n\n"
 
-    content_map, scrape_warnings = await scrape_urls(urls)
-    warnings.extend(scrape_warnings)
+    content_map, scrape_errors = await scrape_urls(urls)
+
+    # Convert structured errors to user-friendly warnings
+    for error_type, domain in scrape_errors:
+        warnings.append(get_user_friendly_error(error_type, domain))
 
     if not content_map:
-        yield f"data: {json.dumps({'type': 'error', 'message': 'Failed to scrape any content from provided URLs'})}\n\n"
+        # All URLs failed - return the first error as the main error message
+        if scrape_errors:
+            error_type, domain = scrape_errors[0]
+            error_message = get_user_friendly_error(error_type, domain)
+        else:
+            error_message = "Failed to scrape any content from provided URLs."
+        yield f"data: {json.dumps({'type': 'error', 'message': error_message})}\n\n"
         return
 
     successful_count = len(content_map)
