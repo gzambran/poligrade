@@ -1,6 +1,8 @@
 """FastAPI application with SSE streaming endpoint for policy position parsing."""
 
 import json
+import logging
+import sys
 from typing import AsyncGenerator
 
 from fastapi import FastAPI, HTTPException, Request
@@ -13,6 +15,15 @@ from config import get_settings
 from mock_data import MOCK_RESPONSE
 from models import ParseRequest, ParserResponse
 from scraper import scrape_urls, ScrapeErrorType
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s [%(name)s] %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+    handlers=[logging.StreamHandler(sys.stdout)],
+)
+logger = logging.getLogger(__name__)
 
 
 def get_user_friendly_error(error_type: ScrapeErrorType, domain: str) -> str:
@@ -86,9 +97,11 @@ async def generate_sse(urls: list[str]) -> AsyncGenerator[str, None]:
     Yields SSE-formatted strings with progress updates and final results.
     """
     warnings: list[str] = []
+    logger.info(f"Processing parse request for {len(urls)} URL(s): {urls}")
 
     # Check for DEV_MODE
     if settings.dev_mode:
+        logger.info("DEV_MODE enabled, returning mock data")
         yield f"data: {json.dumps({'type': 'progress', 'message': 'DEV_MODE: Using mock data...'})}\n\n"
         result = MOCK_RESPONSE.copy()
         yield f"data: {json.dumps({'type': 'result', 'data': result})}\n\n"
@@ -98,6 +111,7 @@ async def generate_sse(urls: list[str]) -> AsyncGenerator[str, None]:
     if settings.cache_enabled:
         cached = cache.get(urls)
         if cached:
+            logger.info("Returning cached response")
             yield f"data: {json.dumps({'type': 'progress', 'message': 'Found cached response...'})}\n\n"
             yield f"data: {json.dumps({'type': 'result', 'data': cached})}\n\n"
             return
@@ -110,19 +124,24 @@ async def generate_sse(urls: list[str]) -> AsyncGenerator[str, None]:
 
     # Convert structured errors to user-friendly warnings
     for error_type, domain in scrape_errors:
-        warnings.append(get_user_friendly_error(error_type, domain))
+        friendly_msg = get_user_friendly_error(error_type, domain)
+        warnings.append(friendly_msg)
+        logger.warning(f"Scrape error for {domain}: {error_type.value}")
 
     if not content_map:
         # All URLs failed - return the first error as the main error message
         if scrape_errors:
             error_type, domain = scrape_errors[0]
             error_message = get_user_friendly_error(error_type, domain)
+            logger.error(f"All URLs failed. Primary error: {error_type.value} for {domain}")
         else:
             error_message = "Failed to scrape any content from provided URLs."
+            logger.error("All URLs failed with no specific error")
         yield f"data: {json.dumps({'type': 'error', 'message': error_message})}\n\n"
         return
 
     successful_count = len(content_map)
+    logger.info(f"Scraped {successful_count}/{total_urls} URLs successfully")
     if successful_count < total_urls:
         yield f"data: {json.dumps({'type': 'progress', 'message': f'Scraped {successful_count}/{total_urls} URLs successfully'})}\n\n"
 
@@ -131,6 +150,9 @@ async def generate_sse(urls: list[str]) -> AsyncGenerator[str, None]:
 
     try:
         result = analyze_content(content_map, settings.anthropic_api_key)
+        politician_name = result.get("politician_name", "Unknown")
+        position_count = len(result.get("positions", []))
+        logger.info(f"Analysis complete: {politician_name}, {position_count} positions extracted")
 
         # Add any scrape warnings to the result
         if warnings:
@@ -144,6 +166,7 @@ async def generate_sse(urls: list[str]) -> AsyncGenerator[str, None]:
         yield f"data: {json.dumps({'type': 'result', 'data': result})}\n\n"
 
     except Exception as e:
+        logger.exception(f"Analysis failed for URLs: {urls}")
         yield f"data: {json.dumps({'type': 'error', 'message': f'Analysis failed: {str(e)}'})}\n\n"
 
 

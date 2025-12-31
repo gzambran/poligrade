@@ -2,12 +2,15 @@
 
 from __future__ import annotations
 
+import logging
 from enum import Enum
 from typing import Optional
 from urllib.parse import urlparse
 
 import httpx
 from bs4 import BeautifulSoup
+
+logger = logging.getLogger(__name__)
 
 
 class ScrapeErrorType(Enum):
@@ -60,6 +63,7 @@ async def scrape_url(url: str, timeout: float = 30.0) -> tuple[str, Optional[tup
         If failed, content is empty string and error is (error_type, domain).
     """
     domain = get_domain(url)
+    logger.info(f"Scraping URL: {url}")
 
     try:
         async with httpx.AsyncClient(
@@ -70,6 +74,7 @@ async def scrape_url(url: str, timeout: float = 30.0) -> tuple[str, Optional[tup
             },
         ) as client:
             response = await client.get(url)
+            logger.info(f"Response from {domain}: HTTP {response.status_code}")
             response.raise_for_status()
 
         soup = BeautifulSoup(response.text, "html.parser")
@@ -87,14 +92,18 @@ async def scrape_url(url: str, timeout: float = 30.0) -> tuple[str, Optional[tup
 
         # Check for empty/minimal content (likely JS-rendered)
         if len(cleaned_text) < 200:
+            logger.warning(f"Empty/minimal content from {domain}: {len(cleaned_text)} chars (likely JS-rendered)")
             return "", (ScrapeErrorType.EMPTY_CONTENT, domain)
 
+        logger.info(f"Successfully scraped {domain}: {len(cleaned_text)} chars")
         return cleaned_text, None
 
     except httpx.TimeoutException:
+        logger.error(f"Timeout scraping {url} after {timeout}s")
         return "", (ScrapeErrorType.TIMEOUT, domain)
     except httpx.HTTPStatusError as e:
         status = e.response.status_code
+        logger.error(f"HTTP {status} error for {url}")
         if status == 403:
             return "", (ScrapeErrorType.BLOCKED, domain)
         elif status == 404:
@@ -103,9 +112,11 @@ async def scrape_url(url: str, timeout: float = 30.0) -> tuple[str, Optional[tup
             return "", (ScrapeErrorType.SERVER_ERROR, domain)
         else:
             return "", (ScrapeErrorType.UNKNOWN, domain)
-    except httpx.RequestError:
+    except httpx.RequestError as e:
+        logger.error(f"Request error for {url}: {type(e).__name__}: {e}")
         return "", (ScrapeErrorType.INVALID_URL, domain)
-    except Exception:
+    except Exception as e:
+        logger.exception(f"Unexpected error scraping {url}")
         return "", (ScrapeErrorType.UNKNOWN, domain)
 
 
