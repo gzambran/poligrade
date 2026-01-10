@@ -132,13 +132,13 @@ export default function GradesClient({ politicians }: GradesClientProps) {
     return filtered
   }, [politicians, debouncedNameQuery, stateFilter, officeFilter, gradeFilter, sortColumn, sortDirection])
 
-  // Summary counts by grade (incumbents only)
+  // Summary counts by grade (politicians with an office)
   const summaryCounts = useMemo(() => {
     const counts: Record<string, number> = {}
     GRADE_OPTIONS.forEach(grade => { counts[grade] = 0 })
 
     filteredPoliticians
-      .filter(p => p.status === 'Incumbent')
+      .filter(p => p.office !== 'NONE')
       .forEach(p => {
         if (counts[p.grade] !== undefined) {
           counts[p.grade]++
