@@ -44,6 +44,7 @@ const emptyFormData: PoliticianFormData = {
   party: null,
   currentPosition: null,
   runningFor: null,
+  runningForDistrict: null,
   published: false,
   economicPolicy: [],
   businessLabor: [],
@@ -332,8 +333,8 @@ export default function PoliticianForm({
                 <Input
                   label="District"
                   placeholder="e.g., 14, At-Large"
-                  value={formData.district || ''}
-                  onChange={(e) => setFormData({ ...formData, district: e.target.value || null })}
+                  value={formData.runningForDistrict || ''}
+                  onChange={(e) => setFormData({ ...formData, runningForDistrict: e.target.value || null })}
                   classNames={{ input: 'text-base', inputWrapper: 'h-12' }}
                 />
               )}

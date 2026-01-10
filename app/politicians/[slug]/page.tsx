@@ -76,6 +76,7 @@ export default async function PoliticianPage({ params }: PageProps) {
     currentPosition: politician.currentPosition,
     runningFor: politician.runningFor,
     runningForLabel: formatRunningFor(politician.runningFor),
+    runningForDistrict: politician.runningForDistrict,
     // Issue fields
     economicPolicy: politician.economicPolicy,
     businessLabor: politician.businessLabor,

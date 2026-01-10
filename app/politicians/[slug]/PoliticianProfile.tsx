@@ -24,6 +24,7 @@ interface PoliticianProfileProps {
     currentPosition: string | null
     runningFor: string | null
     runningForLabel: string | null
+    runningForDistrict: string | null
     economicPolicy: string | null
     businessLabor: string | null
     healthCare: string | null
@@ -137,6 +138,7 @@ export default function PoliticianProfile({ politician }: PoliticianProfileProps
                 {politician.runningForLabel && (
                   <p>
                     <span className="font-medium">Running For:</span> {politician.runningForLabel}
+                    {politician.runningFor === 'HOUSE_REPRESENTATIVE' && politician.runningForDistrict && ` - District ${politician.runningForDistrict}`}
                   </p>
                 )}
               </div>

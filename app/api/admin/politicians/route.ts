@@ -104,7 +104,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const {
       name, state, district, office, status, grade,
-      photoUrl, party, currentPosition, runningFor, published,
+      photoUrl, party, currentPosition, runningFor, runningForDistrict, published,
       economicPolicy, businessLabor, healthCare, education, environment,
       civilRights, votingRights, immigrationForeignAffairs, publicSafety
     } = body
@@ -134,6 +134,7 @@ export async function POST(request: NextRequest) {
         party: party || null,
         currentPosition: currentPosition || null,
         runningFor: runningFor || null,
+        runningForDistrict: runningForDistrict || null,
         published: published ?? false,
         // Issue fields (serialize arrays to JSON strings)
         economicPolicy: serializePolicyField(economicPolicy),

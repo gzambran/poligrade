@@ -14,6 +14,7 @@ export interface Politician {
   party: string | null
   currentPosition: string | null
   runningFor: string | null
+  runningForDistrict: string | null
   published: boolean
   // Issue fields
   economicPolicy: string | null
@@ -42,6 +43,7 @@ export interface PoliticianFormData {
   party: string | null
   currentPosition: string | null
   runningFor: string | null
+  runningForDistrict: string | null
   published: boolean
   // Issue fields (arrays for list-based input)
   economicPolicy: string[] | null

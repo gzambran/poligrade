@@ -54,11 +54,12 @@ model Politician {
   grade     Grade
 
   // Profile fields
-  photoUrl        String?
-  party           Party?
-  currentPosition String?
-  runningFor      Office?
-  published       Boolean  @default(false)
+  photoUrl           String?
+  party              Party?
+  currentPosition    String?
+  runningFor         Office?
+  runningForDistrict String?
+  published          Boolean  @default(false)
 
   // Issue fields (9 criteria)
   economicPolicy            String? @db.Text

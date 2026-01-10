@@ -91,7 +91,7 @@ export async function PUT(
     const body = await request.json()
     const {
       name, state, district, office, status, grade,
-      photoUrl, party, currentPosition, runningFor, published,
+      photoUrl, party, currentPosition, runningFor, runningForDistrict, published,
       economicPolicy, businessLabor, healthCare, education, environment,
       civilRights, votingRights, immigrationForeignAffairs, publicSafety
     } = body
@@ -132,6 +132,7 @@ export async function PUT(
       updateData.party = party || null
       updateData.currentPosition = currentPosition || null
       updateData.runningFor = runningFor || null
+      updateData.runningForDistrict = runningForDistrict || null
       updateData.published = published ?? false
     }
 
