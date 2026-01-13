@@ -124,7 +124,7 @@ export default function PoliticianProfile({ politician }: PoliticianProfileProps
                 </Chip>
                 <Chip size="sm" variant="flat" color="default">
                   {politician.stateLabel}
-                  {politician.district && ` - District ${politician.district}`}
+                  {politician.office === 'HOUSE_REPRESENTATIVE' && politician.district && ` - District ${politician.district}`}
                 </Chip>
               </div>
 
