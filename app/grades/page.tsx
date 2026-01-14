@@ -21,6 +21,8 @@ interface Politician {
   status: string
   grade: string
   published: boolean
+  runningFor: string | null
+  runningForDistrict: string | null
 }
 
 // Singleton pattern for Prisma
@@ -56,7 +58,7 @@ function formatStatus(status: string): string {
 async function getPoliticians(): Promise<Politician[]> {
   // Use raw query to avoid prepared statement cache issues
   const politicians: any[] = await prisma.$queryRaw`
-    SELECT id, name, slug, state, district, office, status, grade, published
+    SELECT id, name, slug, state, district, office, status, grade, published, "runningFor", "runningForDistrict"
     FROM "Politician"
     ORDER BY name ASC
   `
@@ -67,10 +69,12 @@ async function getPoliticians(): Promise<Politician[]> {
     slug: p.slug,
     state: p.state,
     district: p.district || '',
-    office: formatOffice(p.office),
+    office: p.office,
     status: formatStatus(p.status),
     grade: formatGrade(p.grade),
     published: p.published,
+    runningFor: p.runningFor,
+    runningForDistrict: p.runningForDistrict,
   }))
 }
 

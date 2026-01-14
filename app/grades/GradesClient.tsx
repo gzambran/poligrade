@@ -16,10 +16,25 @@ interface Politician {
   status: string
   grade: string
   published: boolean
+  runningFor: string | null
+  runningForDistrict: string | null
 }
 
 const GRADE_OPTIONS = ['Progressive', 'Liberal', 'Centrist', 'Moderate', 'Conservative', 'Nationalist']
 const OFFICE_OPTIONS = ['All', 'N/A', 'Governor', 'Senator', 'House Representative']
+
+// Display helpers for candidates without current office
+function getDisplayOffice(politician: Politician): string {
+  if (politician.office === 'NONE' && politician.status === 'Candidate') {
+    return 'N/A (Candidate)'
+  }
+  return formatOffice(politician.office)
+}
+
+function getDisplayDistrict(politician: Politician): string {
+  // Only show district if they currently hold that office
+  return politician.district || ''
+}
 
 interface GradesClientProps {
   politicians: Politician[]
@@ -90,7 +105,7 @@ export default function GradesClient({ politicians }: GradesClientProps) {
     let filtered = politicians.filter(p => {
       const matchesName = !debouncedNameQuery || p.name.toLowerCase().includes(debouncedNameQuery.toLowerCase())
       const matchesState = !stateFilter || p.state === stateFilter
-      const matchesOffice = officeFilter === 'All' || formatOffice(p.office) === officeFilter
+      const matchesOffice = officeFilter === 'All' || getDisplayOffice(p) === officeFilter || (officeFilter === 'N/A' && p.office === 'NONE')
       const matchesGrade = !gradeFilter || p.grade === gradeFilter
 
       return matchesName && matchesState && matchesOffice && matchesGrade
@@ -105,8 +120,8 @@ export default function GradesClient({ politicians }: GradesClientProps) {
         if (sortColumn === 'district') {
           // Numerical sorting for district
           // Handle empty districts (senators) - put them at the end
-          const aDistrict = a.district && a.district !== '—' ? a.district : ''
-          const bDistrict = b.district && b.district !== '—' ? b.district : ''
+          const aDistrict = getDisplayDistrict(a)
+          const bDistrict = getDisplayDistrict(b)
 
           if (!aDistrict && !bDistrict) return 0
           if (!aDistrict) return 1  // Empty districts go to end
@@ -493,8 +508,8 @@ export default function GradesClient({ politicians }: GradesClientProps) {
                         )}
                       </td>
                       <td className="p-4">{STATE_MAP[politician.state] || politician.state}</td>
-                      <td className="p-4">{politician.district || '—'}</td>
-                      <td className="p-4">{formatOffice(politician.office)}</td>
+                      <td className="p-4">{getDisplayDistrict(politician) || '—'}</td>
+                      <td className="p-4">{getDisplayOffice(politician)}</td>
                       <td className="p-4">{politician.status !== 'None' ? politician.status : '—'}</td>
                       <td className="p-4">
                         <span
@@ -555,11 +570,11 @@ export default function GradesClient({ politicians }: GradesClientProps) {
                       </div>
                       <div>
                         <span className="text-xs font-semibold text-foreground/60 block mb-1">District</span>
-                        <span className="font-medium">{politician.district || '—'}</span>
+                        <span className="font-medium">{getDisplayDistrict(politician) || '—'}</span>
                       </div>
                       <div>
                         <span className="text-xs font-semibold text-foreground/60 block mb-1">Office</span>
-                        <span className="font-medium">{formatOffice(politician.office)}</span>
+                        <span className="font-medium">{getDisplayOffice(politician)}</span>
                       </div>
                       <div>
                         <span className="text-xs font-semibold text-foreground/60 block mb-1">Status</span>
