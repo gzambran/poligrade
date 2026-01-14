@@ -25,15 +25,28 @@ const OFFICE_OPTIONS = ['All', 'N/A', 'Governor', 'Senator', 'House Representati
 
 // Display helpers for candidates without current office
 function getDisplayOffice(politician: Politician): string {
-  if (politician.office === 'NONE' && politician.status === 'Candidate') {
-    return 'N/A (Candidate)'
+  // If they hold an office, show it
+  if (politician.office !== 'NONE') {
+    return formatOffice(politician.office)
   }
-  return formatOffice(politician.office)
+  // If they're a candidate with no current office, show what they're running for
+  if (politician.status === 'Candidate' && politician.runningFor) {
+    return formatOffice(politician.runningFor)
+  }
+  // No office (Status column shows if they're a candidate)
+  return 'N/A'
 }
 
 function getDisplayDistrict(politician: Politician): string {
-  // Only show district if they currently hold that office
-  return politician.district || ''
+  // If they're a current House Rep, show their district
+  if (politician.office === 'HOUSE_REPRESENTATIVE' && politician.district) {
+    return politician.district
+  }
+  // If they're running for House Rep, show that district
+  if (politician.runningFor === 'HOUSE_REPRESENTATIVE' && politician.runningForDistrict) {
+    return politician.runningForDistrict
+  }
+  return ''
 }
 
 interface GradesClientProps {
@@ -105,7 +118,17 @@ export default function GradesClient({ politicians }: GradesClientProps) {
     let filtered = politicians.filter(p => {
       const matchesName = !debouncedNameQuery || p.name.toLowerCase().includes(debouncedNameQuery.toLowerCase())
       const matchesState = !stateFilter || p.state === stateFilter
-      const matchesOffice = officeFilter === 'All' || getDisplayOffice(p) === officeFilter || (officeFilter === 'N/A' && p.office === 'NONE')
+      // Office filter matches current office OR what they're running for
+      const matchesOffice = (() => {
+        if (officeFilter === 'All') return true
+        if (officeFilter === 'N/A') return p.office === 'NONE' && !p.runningFor
+        const officeValue = officeFilter === 'Governor' ? 'GOVERNOR'
+          : officeFilter === 'Senator' ? 'SENATOR'
+          : officeFilter === 'House Representative' ? 'HOUSE_REPRESENTATIVE'
+          : null
+        if (!officeValue) return false
+        return p.office === officeValue || p.runningFor === officeValue
+      })()
       const matchesGrade = !gradeFilter || p.grade === gradeFilter
 
       return matchesName && matchesState && matchesOffice && matchesGrade
