@@ -304,7 +304,7 @@ export default function AdminPoliticiansPage() {
                       <td className="p-4">{politician.name}</td>
                       <td className="p-4">{STATE_MAP[politician.state] || politician.state}</td>
                       <td className="p-4">{politician.district || '—'}</td>
-                      <td className="p-4">{formatOffice(politician.office)}</td>
+                      <td className="p-4">{politician.office === 'NONE' ? 'N/A' : formatOffice(politician.office)}</td>
                       <td className="p-4">{formatStatus(politician.status)}</td>
                       <td className="p-4">
                         <span

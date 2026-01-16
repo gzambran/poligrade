@@ -29,11 +29,7 @@ function getDisplayOffice(politician: Politician): string {
   if (politician.office !== 'NONE') {
     return formatOffice(politician.office)
   }
-  // If they're a candidate with no current office, show what they're running for
-  if (politician.status === 'Candidate' && politician.runningFor) {
-    return formatOffice(politician.runningFor)
-  }
-  // No office (Status column shows if they're a candidate)
+  // Candidates without current office show N/A (Status column indicates they're a candidate)
   return 'N/A'
 }
 
