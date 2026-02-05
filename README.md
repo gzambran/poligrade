@@ -31,14 +31,7 @@ Open [http://localhost:3000](http://localhost:3000) to view the application.
 
 ### Environment Variables
 
-Create a `.env` file:
-
-```env
-DATABASE_URL="postgresql://..."
-NEXTAUTH_SECRET="your-secret-key"
-NEXTAUTH_URL="http://localhost:3000"
-NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY="your-web3forms-key"
-```
+Copy `.env.example` to `.env` and fill in the values.
 
 ## Build for Production
 
