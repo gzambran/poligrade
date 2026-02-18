@@ -6,8 +6,7 @@ export default function Footer() {
   return (
     <footer className="w-full border-t border-divider bg-background" role="contentinfo">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Three Column Layout */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
           {/* Column 1: Explore */}
           <div>
             <h3 className="text-sm font-semibold text-foreground mb-3">Explore</h3>
