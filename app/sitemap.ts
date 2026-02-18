@@ -34,8 +34,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${baseUrl}/quiz` },
     { url: `${baseUrl}/grades` },
     { url: `${baseUrl}/faq` },
-    { url: `${baseUrl}/contact` },
-    { url: `${baseUrl}/donate` },
+{ url: `${baseUrl}/donate` },
     { url: `${baseUrl}/privacy` },
     ...politicianUrls,
   ]

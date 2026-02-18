@@ -36,21 +36,11 @@ export default function PrivacyPage() {
 
           <Card>
             <CardBody className="p-6 md:p-8">
-              <h2 className="text-2xl font-semibold mb-4">Contact Form</h2>
-              <p className="text-foreground/80 leading-relaxed">
-                When you submit our contact form, your message is sent directly to our email via Web3Forms.
-                We only use this information to respond to your inquiry.
-              </p>
-            </CardBody>
-          </Card>
-
-          <Card>
-            <CardBody className="p-6 md:p-8">
               <h2 className="text-2xl font-semibold mb-4">Questions</h2>
               <p className="text-foreground/80 leading-relaxed">
-                If you have any questions about this privacy policy, please{' '}
-                <a href="/contact" className="text-primary hover:underline">
-                  contact us
+                If you have any questions about this privacy policy, please email us at{' '}
+                <a href="mailto:poligradeusa@gmail.com" className="text-primary hover:underline">
+                  poligradeusa@gmail.com
                 </a>
                 .
               </p>

@@ -202,15 +202,6 @@ export default function Home() {
               >
                 Find Your Alignment
               </Button>
-              <Button
-                as={Link}
-                href="/contact"
-                size="lg"
-                variant="flat"
-                className="font-semibold"
-              >
-                Get Involved
-              </Button>
             </div>
           </div>
         </div>
