@@ -15,6 +15,7 @@ import {
 } from '@nextui-org/react'
 import { US_STATES, STATE_MAP, OFFICE_OPTIONS, STATUS_OPTIONS, GRADE_OPTIONS, formatOffice, formatStatus, formatGrade, getGradeColor } from '@/lib/constants'
 import { Politician } from '@/lib/types'
+import DeleteConfirmModal from '@/components/DeleteConfirmModal'
 
 export default function AdminPoliticiansPage() {
   const { data: session } = useSession()
@@ -33,6 +34,9 @@ export default function AdminPoliticiansPage() {
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 50
+
+  // Delete state
+  const [deleteTarget, setDeleteTarget] = useState<Politician | null>(null)
 
   const fetchPoliticians = useCallback(async () => {
     try {
@@ -82,6 +86,15 @@ export default function AdminPoliticiansPage() {
 
   const handleRowClick = (politician: Politician) => {
     router.push(`/admin/politicians/${politician.id}/edit`)
+  }
+
+  const handleDelete = async () => {
+    if (!deleteTarget) return
+    const response = await fetch(`/api/admin/politicians/${deleteTarget.id}`, {
+      method: 'DELETE',
+    })
+    if (!response.ok) throw new Error('Failed to delete')
+    setPoliticians(politicians.filter(p => p.id !== deleteTarget.id))
   }
 
   if (loading) {
@@ -276,12 +289,13 @@ export default function AdminPoliticiansPage() {
                   <th className="text-left p-4 font-semibold">Status</th>
                   <th className="text-left p-4 font-semibold">Grade</th>
                   <th className="text-left p-4 font-semibold">Published</th>
+                  <th className="p-4 font-semibold w-16"><span className="sr-only">Actions</span></th>
                 </tr>
               </thead>
               <tbody>
                 {politicians.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="text-center p-8">
+                    <td colSpan={8} className="text-center p-8">
                       <div className="flex flex-col items-center gap-3">
                         <p className="text-foreground/80 font-medium">No politicians found</p>
                         <Button
@@ -328,6 +342,17 @@ export default function AdminPoliticiansPage() {
                           {politician.published ? 'Yes' : 'No'}
                         </span>
                       </td>
+                      <td className="p-4" onClick={(e) => e.stopPropagation()}>
+                        <Button
+                          size="sm"
+                          color="danger"
+                          variant="light"
+                          aria-label={`Delete ${politician.name}`}
+                          onPress={() => setDeleteTarget(politician)}
+                        >
+                          Delete
+                        </Button>
+                      </td>
                     </tr>
                   ))
                 )}
@@ -336,6 +361,14 @@ export default function AdminPoliticiansPage() {
           </div>
         </CardBody>
       </Card>
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmModal
+        isOpen={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={handleDelete}
+        politicianName={deleteTarget?.name || ''}
+      />
 
       {/* Pagination */}
       {totalPages > 1 && (
