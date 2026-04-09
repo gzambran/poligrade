@@ -177,7 +177,7 @@ export default function PoliticianProfile({ politician }: PoliticianProfileProps
         <Card className="shadow-sm">
           <CardBody className="p-8 text-center">
             <p className="text-foreground/60">
-              Policy positions for this politician are still being researched by our volunteers.
+              This politician has not publicized their policy beliefs. PoliGrade is building tools to track positions even when politicians don&apos;t.
             </p>
           </CardBody>
         </Card>
