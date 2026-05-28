@@ -189,8 +189,8 @@ async def parse_positions(request: Request, body: ParseRequest):
     if not body.urls:
         raise HTTPException(status_code=400, detail="At least one URL is required")
 
-    if len(body.urls) > 4:
-        raise HTTPException(status_code=400, detail="Maximum 4 URLs allowed")
+    if len(body.urls) > 6:
+        raise HTTPException(status_code=400, detail="Maximum 6 URLs allowed")
 
     # Filter empty URLs
     urls = [url.strip() for url in body.urls if url.strip()]

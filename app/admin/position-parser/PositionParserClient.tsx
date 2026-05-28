@@ -18,7 +18,7 @@ import { ISSUE_CRITERIA } from '@/lib/constants'
 import { Politician, parsePolicyField } from '@/lib/types'
 import type { ParserResponse, SSEEvent } from '@/lib/position-parser-types'
 
-const MAX_URLS = 4
+const MAX_URLS = 6
 
 // Map category labels to database field keys
 const CATEGORY_TO_KEY: Record<string, string> = {
@@ -35,7 +35,7 @@ const CATEGORY_TO_KEY: Record<string, string> = {
 
 export default function PositionParserClient() {
   const { data: session } = useSession()
-  const [urls, setUrls] = useState<string[]>(['', '', '', ''])
+  const [urls, setUrls] = useState<string[]>(['', '', '', '', '', ''])
   const [loading, setLoading] = useState(false)
   const [progress, setProgress] = useState('')
   const [result, setResult] = useState<ParserResponse | null>(null)
