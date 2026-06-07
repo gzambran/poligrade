@@ -80,6 +80,16 @@ export default function PositionParserClient() {
     setUrls(newUrls)
   }
 
+  const handleClear = () => {
+    setUrls(['', '', '', '', '', ''])
+    setResult(null)
+    setErrors([])
+    setProgress('')
+    setSelectedPositions({})
+    setPositionCategories({})
+    setSaveSuccess(false)
+  }
+
   const handleSubmit = async () => {
     const validUrls = urls.filter(url => url.trim())
     if (validUrls.length === 0) {
@@ -360,6 +370,15 @@ export default function PositionParserClient() {
               ) : (
                 'Analyze Positions'
               )}
+            </Button>
+            <Button
+              color="default"
+              variant="flat"
+              size="lg"
+              onPress={handleClear}
+              isDisabled={loading || (urls.every(u => !u.trim()) && !result)}
+            >
+              Clear
             </Button>
           </div>
 
