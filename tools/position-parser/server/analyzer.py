@@ -79,9 +79,10 @@ def analyze_content(
     except json.JSONDecodeError as e:
         logger.error(f"Failed to parse Claude response as JSON: {e}")
         logger.debug(f"Raw response: {response_text[:500]}...")
-        # Return a structured error response
-        return {
-            "politician_name": None,
-            "positions": [],
-            "warnings": [f"Failed to parse Claude response as JSON: {str(e)}"],
-        }
+        # Raise rather than returning a fake "successful" empty result. A silent
+        # 0-positions success would get cached and re-served as if it were real,
+        # and the frontend would treat it as a completed analysis (disabling the
+        # Analyze button) instead of surfacing a real, retriable error.
+        raise ValueError(
+            "Claude's response could not be parsed as valid JSON. This is usually transient — try again."
+        ) from e
