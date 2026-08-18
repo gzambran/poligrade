@@ -41,7 +41,9 @@ export default function PositionParserClient() {
   const [result, setResult] = useState<ParserResponse | null>(null)
   const [errors, setErrors] = useState<string[]>([])
   const [warnings, setWarnings] = useState<string[]>([])
+  const [lastAnalyzedUrls, setLastAnalyzedUrls] = useState<string[] | null>(null)
   const statusSectionRef = useRef<HTMLDivElement>(null)
+  const isSubmittingRef = useRef(false)
 
   // Politician selection
   const [politicians, setPoliticians] = useState<Politician[]>([])
@@ -101,6 +103,20 @@ export default function PositionParserClient() {
     setSelectedPositions({})
     setPositionCategories({})
     setSaveSuccess(false)
+    setLastAnalyzedUrls(null)
+  }
+
+  // True once the current URL fields have already been successfully analyzed
+  // and nothing has changed since — used to disable the button so repeat
+  // clicks (e.g. because the PO doesn't see confirmation fast enough) can't
+  // fire redundant requests. Editing any URL field changes this back to false.
+  const isAlreadyAnalyzed = (): boolean => {
+    if (!result || !lastAnalyzedUrls) return false
+    const validUrls = urls.filter(url => url.trim())
+    if (validUrls.length !== lastAnalyzedUrls.length) return false
+    const sortedCurrent = [...validUrls].sort()
+    const sortedLast = [...lastAnalyzedUrls].sort()
+    return sortedCurrent.every((url, i) => url === sortedLast[i])
   }
 
   const handleSubmit = async () => {
@@ -109,6 +125,12 @@ export default function PositionParserClient() {
       setErrors(['Please enter at least one URL'])
       return
     }
+
+    // Guard against a fast double-click firing before React re-renders the
+    // disabled button (the isDisabled prop below is the primary defense, but
+    // React state updates aren't synchronous, so this closes that race).
+    if (isSubmittingRef.current) return
+    isSubmittingRef.current = true
 
     setLoading(true)
     setProgress('')
@@ -166,6 +188,7 @@ export default function PositionParserClient() {
                 setProgress(event.message)
               } else if (event.type === 'result') {
                 setResult(event.data)
+                setLastAnalyzedUrls(validUrls)
                 // Select all positions by default, all categories start as "uncategorized"
                 const allSelected: Record<number, boolean> = {}
                 const allCategories: Record<number, string> = {}
@@ -192,6 +215,7 @@ export default function PositionParserClient() {
     } finally {
       setLoading(false)
       setProgress('')
+      isSubmittingRef.current = false
     }
   }
 
@@ -374,13 +398,15 @@ export default function PositionParserClient() {
               color="primary"
               size="lg"
               onPress={handleSubmit}
-              isDisabled={loading || urls.every(u => !u.trim())}
+              isDisabled={loading || urls.every(u => !u.trim()) || isAlreadyAnalyzed()}
             >
               {loading ? (
                 <>
                   <Spinner size="sm" color="current" />
                   <span className="ml-2">Processing...</span>
                 </>
+              ) : isAlreadyAnalyzed() ? (
+                'Already Analyzed'
               ) : (
                 'Analyze Positions'
               )}
@@ -401,6 +427,12 @@ export default function PositionParserClient() {
             <div className="mt-4 p-3 bg-primary/10 rounded-lg">
               <p className="text-primary font-medium">{progress}</p>
             </div>
+          )}
+
+          {!loading && isAlreadyAnalyzed() && (
+            <p className="mt-2 text-xs text-foreground/60">
+              These URLs were already analyzed — see results below. Change a URL to analyze again.
+            </p>
           )}
         </CardBody>
       </Card>
