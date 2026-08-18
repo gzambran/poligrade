@@ -254,6 +254,7 @@ export default function PositionParserClient() {
   }
 
   const getValidationMessage = (): string | null => {
+    if ((result?.positions?.length ?? 0) === 0) return null // nothing to select; the empty state below explains it
     if (!selectedPoliticianId) return 'Select a politician first'
     if (getSelectedCount() === 0) return 'Select at least one position'
 
@@ -534,6 +535,12 @@ export default function PositionParserClient() {
                 )}
               </div>
             </div>
+
+            {(result.positions ?? []).length === 0 && (
+              <div className="p-4 rounded-lg bg-default-50 text-center text-sm text-foreground/60">
+                No policy positions were found on these pages. Try different or additional URLs.
+              </div>
+            )}
 
             <div className="space-y-3">
               {(result.positions ?? []).map((position, index) => (
