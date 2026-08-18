@@ -78,16 +78,6 @@ export default function PositionParserClient() {
     fetchPoliticians()
   }, [])
 
-  // Scroll the status area (progress/errors/warnings/results) into view whenever
-  // it has something new to show. This is what makes a fast cache hit (which can
-  // resolve in well under a second) visible — without it, the page just reflows
-  // silently and it looks like nothing happened.
-  useEffect(() => {
-    if (loading || result || errors.length > 0 || warnings.length > 0) {
-      statusSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    }
-  }, [loading, result, errors, warnings])
-
   const updateUrl = (index: number, value: string) => {
     const newUrls = [...urls]
     newUrls[index] = value
@@ -140,6 +130,13 @@ export default function PositionParserClient() {
     setSelectedPositions({})
     setPositionCategories({})
     setSaveSuccess(false)
+
+    // Bring the status area into view so a fast cache hit (which can resolve in
+    // well under a second) is still visible instead of looking like nothing
+    // happened. Scoped to this action only — not a generic effect on shared
+    // state, which previously caused unrelated actions (like Add to Profile,
+    // which also touches `errors` to clear stale ones) to trigger this scroll.
+    statusSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
 
     const apiUrl = process.env.NEXT_PUBLIC_POSITION_PARSER_URL
     const apiKey = process.env.NEXT_PUBLIC_POSITION_PARSER_API_KEY
