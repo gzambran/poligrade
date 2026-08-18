@@ -9,8 +9,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application
 COPY . .
 
-# Create cache directory
-RUN mkdir -p /app/cache
+# Create cache and log directories
+RUN mkdir -p /app/cache /app/logs
 
 EXPOSE 8001
 

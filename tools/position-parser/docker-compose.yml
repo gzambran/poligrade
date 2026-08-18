@@ -7,6 +7,7 @@ services:
       - "8001:8001"
     volumes:
       - ./server/cache:/app/cache
+      - ./server/logs:/app/logs
     env_file:
       - ./server/.env
     healthcheck:

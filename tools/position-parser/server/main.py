@@ -4,6 +4,8 @@ import asyncio
 import json
 import logging
 import sys
+from logging.handlers import RotatingFileHandler
+from pathlib import Path
 from typing import AsyncGenerator
 
 from fastapi import FastAPI, HTTPException, Request
@@ -17,12 +19,25 @@ from mock_data import MOCK_RESPONSE
 from models import ParseRequest, ParserResponse
 from scraper import scrape_urls, ScrapeErrorType
 
-# Configure logging
+settings = get_settings()
+
+# Configure logging. Logs go to stdout (for `docker logs`) AND to a rotating
+# file under settings.log_dir, which docker-compose.yml bind-mounts to the
+# host — stdout-only logs are tied to the container instance and are lost
+# every time a deploy recreates the container (docker compose up --build).
+log_dir = Path(settings.log_dir)
+log_dir.mkdir(parents=True, exist_ok=True)
+
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s %(levelname)s [%(name)s] %(message)s",
     datefmt="%Y-%m-%d %H:%M:%S",
-    handlers=[logging.StreamHandler(sys.stdout)],
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        RotatingFileHandler(
+            log_dir / "app.log", maxBytes=10 * 1024 * 1024, backupCount=5
+        ),
+    ],
 )
 logger = logging.getLogger(__name__)
 
@@ -68,7 +83,6 @@ app = FastAPI(
 )
 
 # Configure CORS
-settings = get_settings()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.allowed_origins.split(","),
