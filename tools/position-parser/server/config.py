@@ -13,6 +13,7 @@ class Settings(BaseSettings):
     dev_mode: bool = False
     cache_enabled: bool = True
     cache_dir: str = "./cache"
+    cache_ttl_hours: int = 24  # cached responses older than this are treated as a miss
 
     # CORS settings
     allowed_origins: str = "http://localhost:3000"

@@ -1,5 +1,6 @@
 """FastAPI application with SSE streaming endpoint for policy position parsing."""
 
+import asyncio
 import json
 import logging
 import sys
@@ -77,7 +78,7 @@ app.add_middleware(
 )
 
 # Initialize cache
-cache = ResponseCache(settings.cache_dir)
+cache = ResponseCache(settings.cache_dir, ttl_seconds=settings.cache_ttl_hours * 3600)
 
 
 def validate_api_key(request: Request) -> None:
@@ -149,7 +150,11 @@ async def generate_sse(urls: list[str]) -> AsyncGenerator[str, None]:
     yield f"data: {json.dumps({'type': 'progress', 'message': 'Analyzing content with Claude...'})}\n\n"
 
     try:
-        result = analyze_content(content_map, settings.anthropic_api_key)
+        # Uvicorn runs a single worker/event loop for this service. analyze_content()
+        # uses the synchronous Anthropic client and can block for many seconds, which
+        # would otherwise stall every other in-flight request (including cache hits)
+        # until it returns. Running it in a worker thread keeps the event loop free.
+        result = await asyncio.to_thread(analyze_content, content_map, settings.anthropic_api_key)
         politician_name = result.get("politician_name", "Unknown")
         position_count = len(result.get("positions", []))
         logger.info(f"Analysis complete: {politician_name}, {position_count} positions extracted")

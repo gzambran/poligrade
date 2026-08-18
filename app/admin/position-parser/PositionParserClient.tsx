@@ -1,7 +1,7 @@
 'use client'
 
 import { useSession, signOut } from 'next-auth/react'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import {
   Button,
   Input,
@@ -40,6 +40,8 @@ export default function PositionParserClient() {
   const [progress, setProgress] = useState('')
   const [result, setResult] = useState<ParserResponse | null>(null)
   const [errors, setErrors] = useState<string[]>([])
+  const [warnings, setWarnings] = useState<string[]>([])
+  const statusSectionRef = useRef<HTMLDivElement>(null)
 
   // Politician selection
   const [politicians, setPoliticians] = useState<Politician[]>([])
@@ -74,6 +76,16 @@ export default function PositionParserClient() {
     fetchPoliticians()
   }, [])
 
+  // Scroll the status area (progress/errors/warnings/results) into view whenever
+  // it has something new to show. This is what makes a fast cache hit (which can
+  // resolve in well under a second) visible — without it, the page just reflows
+  // silently and it looks like nothing happened.
+  useEffect(() => {
+    if (loading || result || errors.length > 0 || warnings.length > 0) {
+      statusSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+  }, [loading, result, errors, warnings])
+
   const updateUrl = (index: number, value: string) => {
     const newUrls = [...urls]
     newUrls[index] = value
@@ -84,6 +96,7 @@ export default function PositionParserClient() {
     setUrls(['', '', '', '', '', ''])
     setResult(null)
     setErrors([])
+    setWarnings([])
     setProgress('')
     setSelectedPositions({})
     setPositionCategories({})
@@ -101,6 +114,7 @@ export default function PositionParserClient() {
     setProgress('')
     setResult(null)
     setErrors([])
+    setWarnings([])
     setSelectedPositions({})
     setPositionCategories({})
     setSaveSuccess(false)
@@ -162,7 +176,7 @@ export default function PositionParserClient() {
                 setSelectedPositions(allSelected)
                 setPositionCategories(allCategories)
                 if (event.data.warnings && event.data.warnings.length > 0) {
-                  setErrors(event.data.warnings)
+                  setWarnings(event.data.warnings)
                 }
               } else if (event.type === 'error') {
                 setErrors([event.message])
@@ -391,15 +405,35 @@ export default function PositionParserClient() {
         </CardBody>
       </Card>
 
-      {/* Errors/Warnings */}
+      {/* Status area: scroll target so progress/errors/results are always visible,
+          even when a cache hit resolves almost instantly. */}
+      <div ref={statusSectionRef}>
+
+      {/* Errors (hard failures) */}
       {errors.length > 0 && (
-        <Card className="mb-6 border-warning">
+        <Card className="mb-6 border-2 border-danger">
           <CardBody className="p-4">
-            <h3 className="font-semibold text-warning mb-2">Warnings</h3>
+            <h3 className="font-semibold text-danger mb-2">Error</h3>
             <ul className="space-y-1">
               {errors.map((error, index) => (
                 <li key={index} className="text-sm text-foreground/80">
                   {error}
+                </li>
+              ))}
+            </ul>
+          </CardBody>
+        </Card>
+      )}
+
+      {/* Warnings (soft issues, e.g. partial scrape failures) */}
+      {warnings.length > 0 && (
+        <Card className="mb-6 border-warning">
+          <CardBody className="p-4">
+            <h3 className="font-semibold text-warning mb-2">Warnings</h3>
+            <ul className="space-y-1">
+              {warnings.map((warning, index) => (
+                <li key={index} className="text-sm text-foreground/80">
+                  {warning}
                 </li>
               ))}
             </ul>
@@ -540,7 +574,7 @@ export default function PositionParserClient() {
       )}
 
       {/* Empty State */}
-      {!loading && !result && errors.length === 0 && (
+      {!loading && !result && errors.length === 0 && warnings.length === 0 && (
         <Card>
           <CardBody className="p-8 text-center">
             <p className="text-foreground/60">
@@ -549,6 +583,8 @@ export default function PositionParserClient() {
           </CardBody>
         </Card>
       )}
+
+      </div>
     </div>
   )
 }
