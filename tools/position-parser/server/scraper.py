@@ -33,6 +33,30 @@ def get_domain(url: str) -> str:
         return url
 
 
+# Bot-challenge/interstitial pages (Cloudflare, Akamai, PerimeterX, etc.) are
+# often served with HTTP 200 and enough text to clear the EMPTY_CONTENT length
+# check below, so they'd otherwise sail through as "successfully scraped"
+# content and get silently fed to Claude as if it were the real page.
+BOT_CHALLENGE_MARKERS = (
+    "attention required! | cloudflare",
+    "cloudflare ray id",
+    "checking your browser before accessing",
+    "cf-browser-verification",
+    "just a moment...",
+    "ddos protection by cloudflare",
+    "enable javascript and cookies to continue",
+    "pardon our interruption",
+    "please verify you are a human",
+    "captcha-delivery.com",
+)
+
+
+def _looks_like_bot_challenge(text: str) -> bool:
+    """Detect bot-challenge/interstitial pages that return HTTP 200 with no real content."""
+    lowered = text.lower()
+    return any(marker in lowered for marker in BOT_CHALLENGE_MARKERS)
+
+
 def normalize_url(url: str) -> str:
     """Normalize a URL to ensure it has a scheme."""
     url = url.strip()
@@ -94,6 +118,13 @@ async def scrape_url(url: str, timeout: float = 30.0) -> tuple[str, Optional[tup
         if len(cleaned_text) < 200:
             logger.warning(f"Empty/minimal content from {domain}: {len(cleaned_text)} chars (likely JS-rendered)")
             return "", (ScrapeErrorType.EMPTY_CONTENT, domain)
+
+        # Bot-challenge interstitials return HTTP 200 with real-looking body
+        # length, so they pass the check above — catch them explicitly instead
+        # of silently treating the challenge page as the site's content.
+        if _looks_like_bot_challenge(cleaned_text):
+            logger.warning(f"Bot-challenge page detected from {domain} (HTTP {response.status_code}, {len(cleaned_text)} chars)")
+            return "", (ScrapeErrorType.BLOCKED, domain)
 
         logger.info(f"Successfully scraped {domain}: {len(cleaned_text)} chars")
         return cleaned_text, None
