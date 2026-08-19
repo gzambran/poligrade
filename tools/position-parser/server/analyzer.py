@@ -62,9 +62,16 @@ def analyze_content(
         logger.error(f"Claude API error: {type(e).__name__}: {e}")
         raise
 
-    # Extract text content from response
-    response_text = message.content[0].text
     logger.info(f"Claude API response: {message.usage.input_tokens} input tokens, {message.usage.output_tokens} output tokens")
+
+    # Extract text content from response. Claude sometimes prepends non-text
+    # blocks (e.g. a "thinking" block) for longer/harder prompts, so the text
+    # isn't reliably at index 0 — find the first actual text block instead.
+    text_blocks = [block.text for block in message.content if block.type == "text"]
+    if not text_blocks:
+        logger.error(f"No text block in Claude response. Block types: {[b.type for b in message.content]}")
+        raise ValueError("Claude's response didn't include any text content. This is usually transient — try again.")
+    response_text = "".join(text_blocks)
 
     # Try to parse JSON from response
     # Sometimes Claude wraps JSON in markdown code blocks
